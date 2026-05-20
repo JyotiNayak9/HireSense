@@ -4,7 +4,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2 font-sans">
       {/* ── LEFT PANEL ── */}
-      <div className="relative hidden lg:flex flex-col justify-between bg-[#1e3a5f] overflow-hidden p-10">
+      <div className="relative hidden lg:flex flex-col justify-between bg-navy overflow-hidden p-10">
         {/* Layered radial glows */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_20%_30%,rgba(45,71,214,0.55)_0%,transparent_65%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_80%,rgba(61,90,255,0.25)_0%,transparent_60%)]" />
@@ -86,13 +86,13 @@ export default function LoginPage() {
           <nav className="flex items-center gap-6">
             <Link href="/solutions" className="text-[13px] text-slate-500 hover:text-slate-800 transition-colors">Solutions</Link>
             <Link href="#" className="text-[13px] text-slate-500 hover:text-slate-800 transition-colors">Enterprise</Link>
-            <Link href="#" className="text-[13px] font-semibold text-[#1e3a5f] hover:opacity-70 transition-opacity">Sign in</Link>
+            <Link href="#" className="text-[13px] font-semibold text-navy hover:opacity-70 transition-opacity">Sign in</Link>
           </nav>
         </div>
 
         {/* Form area */}
         <div className="flex-1 flex items-center justify-center px-8 py-12">
-          <div className="w-full max-w-[400px]">
+          <div className="w-full max-w-100">
             {/* Brand mark */}
             <div className="flex items-center gap-2 mb-6">
               <svg viewBox="0 0 26 26" className="w-6 h-6" fill="none">
@@ -115,7 +115,7 @@ export default function LoginPage() {
                   key={role}
                   className={`py-2.5 rounded-lg text-[13px] font-semibold border transition-all ${
                     i === 0
-                      ? "bg-[#1e3a5f] text-white border-[#1e3a5f] shadow-sm"
+                      ? "bg-navy text-white border-navy shadow-sm"
                       : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
                   }`}
                 >
@@ -141,7 +141,7 @@ export default function LoginPage() {
                   <input
                     type="email"
                     placeholder="name@company.com"
-                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-[13px] text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/10 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-[13px] text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-accent focus:ring-2 focus:ring-blue-accent/10 transition-all"
                   />
                 </div>
               </div>
@@ -150,7 +150,7 @@ export default function LoginPage() {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-[12px] font-semibold text-slate-600">Password</label>
-                  <Link href="#" className="text-[12px] text-[#2563eb] hover:opacity-70 transition-opacity">
+                  <Link href="#" className="text-[12px] text-blue-accent hover:opacity-70 transition-opacity">
                     Forgot Password?
                   </Link>
                 </div>
@@ -164,7 +164,7 @@ export default function LoginPage() {
                   <input
                     type="password"
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-[13px] text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/10 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-[13px] text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-accent focus:ring-2 focus:ring-blue-accent/10 transition-all"
                   />
                 </div>
               </div>
@@ -174,7 +174,7 @@ export default function LoginPage() {
                 <input
                   type="checkbox"
                   id="remember"
-                  className="w-3.5 h-3.5 accent-[#2563eb] cursor-pointer"
+                  className="w-3.5 h-3.5 accent-blue-accent cursor-pointer"
                 />
                 <label htmlFor="remember" className="text-[12px] text-slate-500 cursor-pointer">
                   Keep me logged in
@@ -184,7 +184,7 @@ export default function LoginPage() {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full py-3 rounded-lg bg-[#1e3a5f] text-white text-[13px] font-bold hover:bg-[#162d4a] transition-colors shadow-sm mt-1 flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-lg bg-navy text-white text-[13px] font-bold hover:bg-navy-mid transition-colors shadow-sm mt-1 flex items-center justify-center gap-2"
               >
                 Login to Dashboard
                 <svg viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5">
@@ -236,7 +236,7 @@ export default function LoginPage() {
             {/* Sign up link */}
             <p className="text-center text-[12px] text-slate-400 mt-6">
               Don't have an account?{" "}
-              <Link href="#" className="text-[#2563eb] font-semibold hover:opacity-70 transition-opacity">
+              <Link href="#" className="text-blue-accent font-semibold hover:opacity-70 transition-opacity">
                 Create an account
               </Link>
             </p>

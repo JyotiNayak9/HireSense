@@ -1,21 +1,18 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-
 export interface IJob extends Document {
-
   title: string;
   description: string;
   requiredSkills: string[];
   salary: number;
   location: string;
-  companyId: string;
+  companyId: mongoose.Schema.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
-
 const jobSchema = new Schema<IJob>(
-{
+  {
     title: {
       type: String,
       required: [true, 'Job title is required'],
@@ -51,22 +48,20 @@ const jobSchema = new Schema<IJob>(
       trim: true,
     },
     companyId: {
-      type: Mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: [true, 'Company ID is required'],
-      ref: 'Company', 
+      ref: 'Company',
     },
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
-
 
 jobSchema.index({ title: 1 });
 jobSchema.index({ companyId: 1 });
 jobSchema.index({ location: 1 });
-jobSchema.index({ requiredSkills: 1 }); 
-
+jobSchema.index({ requiredSkills: 1 });
 
 const Job: Model<IJob> =
   mongoose.models.Job || mongoose.model<IJob>('Job', jobSchema);

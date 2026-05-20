@@ -41,10 +41,10 @@ async function connectToDatabase(): Promise<Connection> {
   }
 
   // Validate that MongoDB URI is configured
-  const mongoUri = process.env.MONGODB_URI;
+  const mongoUri = process.env.MONGODB_URI || process.env.MONGODBURI;
   if (!mongoUri) {
     throw new Error(
-      'MONGODB_URI environment variable is not defined. Please add it to your .env.local file.'
+      'MONGODB_URI or MONGODBURI environment variable is not defined. Please add it to your .env.local file.'
     );
   }
 
