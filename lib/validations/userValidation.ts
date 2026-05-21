@@ -33,12 +33,12 @@ export const createUserSchema = Joi.object({
         "any.only" : "password and confirm password should match"
     }),
 
-  role: Joi.string()
-    .valid('candidate', 'employer', 'admin')
-    .default('candidate').required()
-    .messages({
-      'any.only': 'Role must be one of: candidate, employer, admin',
-    }),
+  // role: Joi.string()
+  //   .valid('candidate', 'employer', 'admin')
+  //   .default('candidate').required()
+  //   .messages({
+  //     'any.only': 'Role must be one of: candidate, employer, admin',
+  //   }),
 
   phone: Joi.string()
     .pattern(/^[+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/)

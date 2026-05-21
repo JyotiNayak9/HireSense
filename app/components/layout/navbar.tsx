@@ -25,7 +25,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image src={logo} alt="HireSense Logo" width={30} height={30} />
-          <span className="font-bold text-[15px] text-[#1e3a5f] tracking-tight">
+          <span className="font-bold text-[15px] text-navy tracking-tight">
             HireSense
           </span>
         </Link>
@@ -56,7 +56,7 @@ export default function Navbar() {
           </Link>
           <Link
             href="/register"
-            className="text-[13px] font-semibold px-4 py-2 rounded-lg bg-[#1e3a5f] text-white hover:bg-[#162d4a] transition-colors"
+            className="text-[13px] font-semibold px-4 py-2 rounded-lg bg-navy text-white hover:bg-navy-mid transition-colors"
           >
             Get Started
           </Link>
@@ -89,7 +89,7 @@ export default function Navbar() {
           ))}
           <hr className="border-slate-100 my-1" />
           <Link href="/login" className="text-sm text-slate-600">Log in</Link>
-          <Link href="/register" className="text-sm font-semibold px-4 py-2.5 rounded-lg bg-[#1e3a5f] text-white text-center">Get Started</Link>
+          <Link href="/register" className="text-sm font-semibold px-4 py-2.5 rounded-lg bg-navy text-white text-center">Get Started</Link>
         </div>
       )}
     </header>

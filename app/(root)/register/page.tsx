@@ -5,9 +5,11 @@ import { HiArrowRight } from "react-icons/hi";
 import { useForm, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { InputLabel, SelectOptionComponent, SubmitButton, TextInputComponent } from "@/app/components/form/input-components";
+import { InputLabel, SubmitButton, TextInputComponent } from "@/app/components/form/input-components";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import logo from "../../../public/hiresense-logo.png";
 
 
 
@@ -29,9 +31,9 @@ export default function SignupPage() {
   confirmPassword: yup.string()
     .oneOf([yup.ref("password")], "Password and confirm password should match")
     .required("Confirm Password is required"),
-  role: yup.string()
-    .oneOf(["candidate", "employer", "admin"], "Role must be one of: candidate, employer, admin")
-    .default("candidate"),
+  // role: yup.string()
+  //   .oneOf(["candidate"], "Role must be candidate")
+  //   .default("candidate"),
   phone: yup.string()
     .matches(/^[+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, "Please provide a valid phone number")
     .optional(),
@@ -48,19 +50,17 @@ type FormData = yup.InferType<typeof schema>;
     formState: { errors, isSubmitting },
     setError,
   } = useForm<FormData>({
-    resolver: yupResolver(schema) as Resolver<FormData, any>,
-    defaultValues: {
-      role: "candidate",
-      // skills: []
-    },
+    resolver: yupResolver(schema) as Resolver<FormData>,
+
   });
 
   const router = useRouter()
   const onSubmit = async (data: FormData) => {
     try {
       const formData = new FormData();
+      const payload = { ...data, role: "candidate" };
       
-      Object.entries(data).forEach(([key, value]) => {
+      Object.entries(payload).forEach(([key, value]) => {
         if (key === "skills" && Array.isArray(value)) {
           value.forEach((skill) => formData.append("skills", skill));
         } else if (value !== undefined && value !== null) {
@@ -94,7 +94,7 @@ type FormData = yup.InferType<typeof schema>;
 
       toast.success("Account created successfully, Please Login.")
       router.push("/login");
-    } catch (error) {
+    } catch {
       setError("root", {
         type: "server",
         message: "An unexpected error occurred. Please try again.",
@@ -107,40 +107,61 @@ type FormData = yup.InferType<typeof schema>;
       <div className="flex flex-col justify-between mt-2">
         <div className="flex-1 flex items-center justify-center px-8 py-12">
           <div className="w-full max-w-100 ">
+            <div className="flex items-center gap-2 mb-6">
+              <Image src={logo} alt="HireSense Logo" width={30} height={30} />
+              <span className="font-bold text-[14px] text-slate-800">
+                HireSense
+              </span>
+            </div>
             <h2 className="text-[1.7rem] font-bold text-navy mb-1 text-center">
               Create your account
             </h2>
-            
+            <div className="grid grid-cols-2 gap-2 rounded-lg bg-soft-bg p-1 mt-5">
+              <Link
+                href="/register"
+                aria-current="page"
+                className="rounded-md bg-navy px-3 py-2.5 text-center text-[13px] font-bold text-white shadow-sm"
+              >
+                Register as applicant
+              </Link>
+              <Link
+                href="/register/company"
+                className="rounded-md px-3 py-2.5 text-center text-[13px] font-bold text-slate-700 transition-colors hover:bg-white hover:text-navy"
+              >
+                Register as a company
+              </Link>
+            </div>
+
             {errors.root && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-sm text-red-600">{errors.root.message}</p>
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
               <div>
-                <InputLabel htmlFor="name">Full Name</InputLabel> 
-                <TextInputComponent 
+                <InputLabel htmlFor="name">Full Name</InputLabel>
+                <TextInputComponent
                 control={control}
                 name="name"
                 errMsg={errors.name ? errors.name.message as string : undefined}
                 />
-  
+
               </div>
 
               <div>
                 <InputLabel htmlFor="email">Email Address</InputLabel>
-                <TextInputComponent 
+                <TextInputComponent
                 control={control}
                 name="email"
                 type="email"
                 errMsg={errors.email ? errors.email.message as string : undefined}
                 />
               </div>
-
+   <div className="grid gap-6 md:grid-cols-2">
               <div>
                 <InputLabel htmlFor="password">Password</InputLabel>
-                <TextInputComponent 
+                <TextInputComponent
                 control={control}
                 name="password"
                 type="password"
@@ -150,28 +171,15 @@ type FormData = yup.InferType<typeof schema>;
 
               <div>
                 <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
-                <TextInputComponent 
+                <TextInputComponent
                 control={control}
                 name="confirmPassword"
                 type="password"
                 errMsg={errors.confirmPassword ? errors.confirmPassword.message as string : undefined}
                 />
               </div>
+</div>
 
-              <div>
-                <InputLabel htmlFor="role">Role</InputLabel>
-                <SelectOptionComponent
-                  control={control}
-                  name="role"
-                  errMsg={errors.role ? errors.role.message as string : undefined}
-                  options={[
-                    { label: "Candidate", value: "candidate" },
-                    { label: "Employer", value: "employer" }
-                  ]}
-                />
-              </div>
-
-                  
               <SubmitButton loading = {isSubmitting}>
                {isSubmitting ? "Creating Account..." : "Create Account"}
                 {!isSubmitting && <HiArrowRight className="w-4 h-4" />}

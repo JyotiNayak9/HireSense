@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IUser extends Document {
@@ -12,6 +13,7 @@ export interface IUser extends Document {
   resumeId: mongoose.Schema.Types.ObjectId | null;
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<IUser>(
@@ -41,9 +43,7 @@ const userSchema = new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ['candidate', 'employer', 'admin'],
       default: 'candidate',
-      required: [true, 'Role is required'],
     },
     phone: {
       type: String,
@@ -81,6 +81,21 @@ const userSchema = new Schema<IUser>(
 );
 
 userSchema.index({ email: 1 });
+
+// Hash password before saving
+userSchema.pre('save', async function (this: IUser) {
+  if (!this.isModified('password')) {
+    return;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Method to compare password
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>('User', userSchema);
