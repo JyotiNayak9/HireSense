@@ -4,7 +4,9 @@ export interface IJob extends Document {
   title: string;
   description: string;
   requiredSkills: string[];
-  salary: number;
+  salaryRange?: string;
+  jobType: string;
+  deadline: Date;
   location: string;
   companyId: mongoose.Schema.Types.ObjectId;
   createdAt: Date;
@@ -36,11 +38,20 @@ const jobSchema = new Schema<IJob>(
         message: 'Required skills must be a non-empty array',
       },
     },
-    salary: {
-      type: Number,
-      required: [true, 'Salary is required'],
-      min: [0, 'Salary cannot be negative'],
-      max: [10000000, 'Salary value seems too high'],
+    salaryRange: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [100, 'Salary range cannot exceed 100 characters'],
+    },
+    jobType: {
+      type: String,
+      required: [true, 'Job type is required'],
+      enum: ['Full-time', 'Part-time', 'Remote', 'Internship'],
+    },
+    deadline: {
+      type: Date,
+      required: [true, 'Deadline is required'],
     },
     location: {
       type: String,

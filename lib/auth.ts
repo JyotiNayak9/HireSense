@@ -64,8 +64,21 @@ export async function requireCompanySession() {
   }
 
   if (session.accountType !== 'company' || session.role !== 'company') {
-    redirect('/dashboard/user');
+    redirect('/login');
   }
 
+  return session;
+}
+
+
+export async function requireCandidateSession() {
+    const session = await getAuthSession();
+
+  if (!session) {
+    redirect('/login');
+  }
+  if(session.accountType !== 'candidate' || session.role !== 'candidate') {
+    redirect('/login');
+  }
   return session;
 }

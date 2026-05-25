@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import LogoutButton from './LogoutButton';
 import type { DashboardNavItem, DashboardProfile } from './types';
 
 interface DashboardSidebarProps {
@@ -48,13 +49,16 @@ export default function DashboardSidebar({
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[12px] font-bold text-[#203f99] shadow-sm">
             {profile.initials}
           </div>
-          <div>
+          <div className="flex-1">
             <p className="text-[12px] font-bold leading-tight text-[#03173f]">
               {profile.name}
             </p>
             <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">
               {profile.subtitle}
             </p>
+          </div>
+          <div className="ml-2">
+            <LogoutButton />
           </div>
         </div>
       )}

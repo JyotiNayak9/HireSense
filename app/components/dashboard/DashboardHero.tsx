@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { DashboardAction } from './types';
 
 interface DashboardHeroProps {
@@ -13,6 +14,13 @@ export default function DashboardHero({
 }: DashboardHeroProps) {
   const ActionIcon = action?.icon;
 
+  const button = (
+    <span className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-[#082d78] px-5 text-[12px] font-bold uppercase text-white shadow-sm transition hover:bg-[#061f55] md:w-auto">
+      {ActionIcon && <ActionIcon className="h-5 w-5" />}
+      {action?.label}
+    </span>
+  );
+
   return (
     <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
       <div>
@@ -21,15 +29,12 @@ export default function DashboardHero({
         </h1>
         <p className="mt-1 text-[14px] text-[#25385f]">{description}</p>
       </div>
-      {action && (
-        <button
-          className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-[#082d78] px-5 text-[12px] font-bold uppercase text-white shadow-sm transition hover:bg-[#061f55] md:w-auto"
-          type="button"
-        >
-          {ActionIcon && <ActionIcon className="h-5 w-5" />}
-          {action.label}
-        </button>
-      )}
+      {action &&
+        (action.href ? (
+          <Link href={action.href}>{button}</Link>
+        ) : (
+          <button type="button">{button}</button>
+        ))}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useController } from "react-hook-form"
-import Select from "react-select"
+import { useState } from 'react';
 
 export interface InputLabelProps{
     children: any, 
@@ -92,26 +92,96 @@ export const TextInputComponent = ({type="text",control,name, defaultValue, errM
 // }
 
 
-// export const TextAreaInputComponent = ({row=5,control,name, defaultValue,  errMsg=null}: TextInputInterface) => {
-//     const {field} = useController({
-//         control: control,
-//         name:name,
-//         defaultValue: defaultValue,
+export const TextAreaInputComponent = ({row=5,control,name, defaultValue,  errMsg}: TextInputInterface) => {
+    const {field} = useController({
+        control: control,
+        name:name,
+        defaultValue: defaultValue,
        
-//     })
-//     return(
-//         <>
-//        <textarea 
-//        {...field}
-//        rows={row} 
-//        style={{resize:"none"}} 
-//        className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm">{defaultValue}</textarea>
-//             <span className="text-sm italic text-red-800">
-//              {errMsg}
-//             </span>
-//         </>
-//     )
-// }
+    })
+    return(
+        <>
+       <textarea 
+       {...field}
+       rows={row} 
+       style={{resize:"vertical"}} 
+       className={`w-full px-4 py-2.5 border rounded-lg text-[13px] text-slate-800 focus:outline-none focus:border-blue-accent focus:ring-2 focus:ring-blue-accent/10 transition-all ${
+                    errMsg ? "border-red-500" : "border-slate-400"
+                  }`}>
+       </textarea>
+                {errMsg && (
+                  <p className="text-xs text-red-500 mt-1">{errMsg}</p>
+                )}
+        </>
+    )
+}
+
+interface TagInputProps {
+  control: any;
+  name: string;
+  defaultValue?: string[];
+  errMsg?: string;
+}
+
+export const TagInputComponent = ({ control, name, defaultValue = [], errMsg }: TagInputProps) => {
+  const { field } = useController({
+    name,
+    control,
+    defaultValue,
+  });
+
+  const [inputValue, setInputValue] = useState('');
+  const tags: string[] = Array.isArray(field.value) ? field.value : [];
+
+  const addTag = (value: string) => {
+    const tag = value.trim();
+    if (!tag) return;
+    if (!tags.includes(tag)) {
+      field.onChange([...tags, tag]);
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    field.onChange(tags.filter((tag) => tag !== tagToRemove));
+  };
+
+  return (
+    <>
+      <div className={`rounded-lg border px-3 py-2 transition-all ${errMsg ? 'border-red-500' : 'border-slate-400'}`}>
+        <div className="mb-2 flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <span key={tag} className="inline-flex items-center rounded-full bg-slate-200 px-2 py-1 text-xs text-slate-700">
+              {tag}
+              <button
+                type="button"
+                onClick={() => removeTag(tag)}
+                className="ml-2 text-[10px] font-bold text-slate-500 hover:text-slate-900"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ',') {
+              e.preventDefault();
+              addTag(inputValue.replace(/,$/, ''));
+              setInputValue('');
+            }
+          }}
+          placeholder="Type skill and press Enter or comma"
+          className="w-full border-none bg-transparent px-0 py-1 text-[13px] text-slate-800 focus:outline-none"
+        />
+      </div>
+      {errMsg && <p className="text-xs text-red-500 mt-1">{errMsg}</p>}
+    </>
+  );
+}
+
 export interface OptionTpye{
     label: string,
     value:string 

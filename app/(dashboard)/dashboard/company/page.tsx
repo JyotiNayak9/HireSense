@@ -29,12 +29,13 @@ import type {
 import { requireCompanySession } from '@/lib/auth';
 import { initializeDatabase } from '@/lib/initializeDatabase';
 import Company from '@/database/Company.model';
-import logo from './../../../../public/hiresense-logo.png'
-import Image from 'next/image';
+import Job from '@/database/Job.model';
+import mongoose from 'mongoose';
 
 const sidebarItems: DashboardNavItem[] = [
-  { label: 'Dashboard', icon: HiOutlineViewGrid },
-  { label: 'Pipeline', icon: HiOutlineClipboardList },
+  { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/company' },
+  { label: 'Post Job', icon: HiOutlineClipboardList, href: '/dashboard/company/post-job' },
+  { label: 'My Jobs', icon: HiOutlineDatabase, href: '/dashboard/company/my-jobs' },
   { label: 'Analysis', icon: HiOutlineChartBar },
   { label: 'Settings', icon: HiOutlineAdjustments },
 ];
@@ -63,35 +64,7 @@ const stats: DashboardStat[] = [
   },
 ];
 
-const jobs: DashboardJobItem[] = [
-  {
-    title: 'Senior Frontend Developer',
-    meta: '12 new applicants',
-    posted: 'Posted 4 days ago',
-    match: '98%',
-    icon: HiOutlineCode,
-    tone: 'bg-[#1f3f99] text-white',
-    dot: 'bg-[#1f3f99]',
-  },
-  {
-    title: 'Lead UI/UX Designer',
-    meta: '5 interviewing',
-    posted: 'Posted 2 weeks ago',
-    match: '94%',
-    icon: HiOutlineChartBar,
-    tone: 'bg-blue-50 text-[#1f3f99]',
-    dot: 'bg-amber-400',
-  },
-  {
-    title: 'Data Architect',
-    meta: 'Hiring phase',
-    posted: 'Posted 1 month ago',
-    match: '89%',
-    icon: HiOutlineDatabase,
-    tone: 'bg-blue-50 text-[#1f3f99]',
-    dot: 'bg-emerald-500',
-  },
-];
+const jobs: DashboardJobItem[] = [];
 
 const activities: DashboardActivity[] = [
   {
@@ -128,7 +101,14 @@ async function CompanyDashboardContent() {
   const session = await requireCompanySession();
 
   await initializeDatabase();
-  const company = await Company.findById(session.companyId ?? session.accountId)
+  const companyId = session.companyId || session.accountId;
+  
+  if (!companyId) {
+    console.error('[COMPANY_DASHBOARD_ERROR] No companyId found in session:', session);
+    redirect('/login');
+  }
+
+  const company = await Company.findById(companyId)
     .select('companyName email location')
     .lean<{
       companyName: string;
@@ -136,9 +116,26 @@ async function CompanyDashboardContent() {
       location: string;
     }>();
 
+  const companyJobs = await Job.find({
+    companyId:companyId as any,
+  })
+    .sort({ createdAt: -1 })
+    .limit(6)
+    .lean();
+
   if (!company) {
     redirect('/login');
   }
+
+  const dashboardJobs: DashboardJobItem[] = companyJobs.map((job) => ({
+    title: job.title,
+    meta: `${job.location} • ${job.jobType}`,
+    posted: `Posted ${new Date(job.createdAt).toLocaleDateString()}`,
+    match: job.salaryRange || 'Salary not listed',
+    icon: HiOutlineBriefcase,
+    tone: job.salaryRange ? 'bg-[#1f3f99] text-white' : 'bg-blue-50 text-[#1f3f99]',
+    dot: 'bg-[#1f3f99]',
+  }));
 
   return (
     <DashboardShell
@@ -166,13 +163,13 @@ async function CompanyDashboardContent() {
       <DashboardHero
         title={`Welcome, ${company.companyName}`}
         description="Here's what's happening with your hiring pipeline today."
-        action={{ label: 'Create New Job', icon: HiOutlinePlus }}
+        action={{ label: 'Create New Job', icon: HiOutlinePlus, href: '/dashboard/company/post-job' }}
       />
 
       <DashboardStatGrid stats={stats} />
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_292px]">
-        <JobPostingsPanel title="Active Job Postings" jobs={jobs} />
+        <JobPostingsPanel title="Active Job Postings" jobs={dashboardJobs} matchLabel="Salary" />
         <ActivityLogPanel title="Recent Activity" activities={activities} />
       </div>
     </DashboardShell>

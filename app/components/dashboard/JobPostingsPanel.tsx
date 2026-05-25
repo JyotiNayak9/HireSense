@@ -17,12 +17,7 @@ export default function JobPostingsPanel({
     <section>
       <div className="flex items-center justify-between">
         <h2 className="text-[22px] font-bold text-[#00143f]">{title}</h2>
-        <button
-          className="text-[11px] font-bold uppercase text-[#082d78] hover:underline"
-          type="button"
-        >
-          {viewAllLabel}
-        </button>
+        
       </div>
 
       <div className="mt-5 space-y-4">

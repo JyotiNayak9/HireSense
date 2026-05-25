@@ -16,6 +16,7 @@ export interface DashboardProfile {
 export interface DashboardAction {
   label: string;
   icon?: IconType;
+  href?: string;
 }
 
 export interface DashboardStat {
