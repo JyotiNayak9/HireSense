@@ -33,8 +33,7 @@ const sidebarItems: DashboardNavItem[] = [
   { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/company' },
   { label: 'Post Job', icon: HiOutlineClipboardList, href: '/dashboard/company/post-job' },
   { label: 'My Jobs', icon: HiOutlineDatabase, href: '/dashboard/company/my-jobs' },
-  { label: 'Analysis', icon: HiOutlineChartBar },
-  { label: 'Settings', icon: HiOutlineAdjustments },
+
 ];
 
 const stats: DashboardStat[] = [

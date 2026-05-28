@@ -15,14 +15,14 @@ export default function DashboardTopbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <label className="relative block w-full md:w-64">
+        {/* <label className="relative block w-full md:w-64">
           <HiOutlineSearch className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input
             className="h-11 w-full rounded-lg border border-slate-300 bg-[#eef1f7] pl-11 pr-4 text-[12px] text-[#03173f] outline-none transition focus:border-[#203f99] focus:bg-white"
             placeholder="Search..."
             type="search"
           />
-        </label>
+        </label> */}
 
       </div>
     </header>

@@ -11,15 +11,16 @@ import { requireCandidateSession } from '@/lib/auth';
 import { initializeDatabase } from '@/lib/initializeDatabase';
 import User from '@/database/User.model';
 import Job from '@/database/Job.model';
-import Company from '@/database/Company.model';
+import '@/database/Company.model';
 import Link from 'next/link';
 
 const sidebarItems: DashboardNavItem[] = [
-  { label: 'Dashboard', icon: HiOutlineViewGrid },
+  { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/user' },
   { label: 'Job Openings', icon: HiOutlineBriefcase, href: '/dashboard/user/job-openings' },
-  { label: 'Pipeline', icon: HiOutlineClipboardList },
-  { label: 'Analysis', icon: HiOutlineChartBar },
-  { label: 'Settings', icon: HiOutlineAdjustments },
+  { label: 'Resumes', icon: HiOutlineClipboardList, href: '/dashboard/user/resumes' },
+
+
+
 ];
 
 export default async function JobOpeningsPage() {

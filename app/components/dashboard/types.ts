@@ -35,6 +35,8 @@ export interface DashboardJobItem {
   icon: IconType;
   tone?: string;
   dot?: string;
+  id?: string;
+  href?: string;
 }
 
 export interface DashboardActivity {

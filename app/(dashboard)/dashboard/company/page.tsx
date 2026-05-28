@@ -36,58 +36,13 @@ const sidebarItems: DashboardNavItem[] = [
   { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/company' },
   { label: 'Post Job', icon: HiOutlineClipboardList, href: '/dashboard/company/post-job' },
   { label: 'My Jobs', icon: HiOutlineDatabase, href: '/dashboard/company/my-jobs' },
-  { label: 'Analysis', icon: HiOutlineChartBar },
-  { label: 'Settings', icon: HiOutlineAdjustments },
+
 ];
 
-const stats: DashboardStat[] = [
-  {
-    label: 'Active Jobs',
-    value: '24',
-    detail: '+12%',
-    icon: HiOutlineBriefcase,
-    tone: 'text-emerald-600',
-  },
-  {
-    label: 'New Applicants',
-    value: '148',
-    detail: '8 new today',
-    icon: HiOutlineUsers,
-    tone: 'text-blue-700',
-  },
-  {
-    label: 'Interviews',
-    value: '12',
-    detail: 'scheduled this week',
-    icon: HiOutlineCalendar,
-    tone: 'text-amber-600',
-  },
-];
 
 const jobs: DashboardJobItem[] = [];
 
-const activities: DashboardActivity[] = [
-  {
-    title: 'Alex Rivera ranked #1 for Frontend Dev.',
-    time: '18 mins ago',
-    dot: 'bg-[#0f3f8f]',
-  },
-  {
-    title: 'Team Meeting scheduled for interviews.',
-    time: '2 hrs ago',
-    dot: 'bg-amber-400',
-  },
-  {
-    title: 'New AI Score generated for Data Architect pool.',
-    time: '4 hrs ago',
-    dot: 'bg-[#0f3f8f]',
-  },
-  {
-    title: 'Offer Extended to candidate ID #4492.',
-    time: 'Yesterday',
-    dot: 'bg-teal-600',
-  },
-];
+
 
 export default async function CompanyDashboardPage() {
   return (
@@ -122,6 +77,18 @@ async function CompanyDashboardContent() {
     .sort({ createdAt: -1 })
     .limit(6)
     .lean();
+
+  const totalJobsCount = await Job.countDocuments({ companyId: companyId as any });
+
+  const stats: DashboardStat[] = [
+    {
+      label: 'Total Jobs',
+      value: String(totalJobsCount),
+      detail: '',
+      icon: HiOutlineBriefcase,
+      tone: 'text-emerald-600',
+    },
+  ];
 
   if (!company) {
     redirect('/login');
@@ -170,7 +137,6 @@ async function CompanyDashboardContent() {
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_292px]">
         <JobPostingsPanel title="Active Job Postings" jobs={dashboardJobs} matchLabel="Salary" />
-        <ActivityLogPanel title="Recent Activity" activities={activities} />
       </div>
     </DashboardShell>
   );

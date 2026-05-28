@@ -32,36 +32,15 @@ const sidebarItems: DashboardNavItem[] = [
   { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/company' },
   { label: 'Post Job', icon: HiOutlineClipboardList, href: '/dashboard/company/post-job' },
   { label: 'My Jobs', icon: HiOutlineDatabase, href: '/dashboard/company/my-jobs' },
-  { label: 'Analysis', icon: HiOutlineChartBar },
-  { label: 'Settings', icon: HiOutlineAdjustments },
+
 ];
 
-const stats: DashboardStat[] = [
-  {
-    label: 'Active Jobs',
-    value: '24',
-    detail: '+12%',
-    icon: HiOutlineBriefcase,
-    tone: 'text-emerald-600',
-  },
-  {
-    label: 'New Applicants',
-    value: '148',
-    detail: '8 new today',
-    icon: HiOutlineUsers,
-    tone: 'text-blue-700',
-  },
-  {
-    label: 'Interviews',
-    value: '12',
-    detail: 'scheduled this week',
-    icon: HiOutlineCalendar,
-    tone: 'text-amber-600',
-  },
-];
+
 
 const mapJobs = (jobs: Array<any>): DashboardJobItem[] =>
   jobs.map((job) => ({
+    id: String(job._id),
+    href: `/dashboard/company/my-jobs/${job._id}/applicants`,
     title: job.title,
     meta: `${job.location} • ${job.jobType}`,
     posted: `Posted ${new Date(job.createdAt).toLocaleDateString()}`,

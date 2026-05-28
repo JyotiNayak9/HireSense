@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { redirect, notFound } from 'next/navigation';
-import { HiOutlineBriefcase, HiOutlineCalendar, HiOutlineChartBar, HiOutlineClipboardList, HiOutlineAdjustments, HiOutlineUsers, HiOutlineViewGrid, HiOutlineMapPin, HiOutlineCurrencyDollar, HiOutlineClock } from 'react-icons/hi';
+import { HiOutlineBriefcase, HiOutlineCalendar, HiOutlineChartBar, HiOutlineClipboardList, HiOutlineAdjustments, HiOutlineViewGrid, HiOutlineCurrencyDollar, HiOutlineClock } from 'react-icons/hi';
 import DashboardFooter from '@/app/components/dashboard/DashboardFooter';
 import DashboardHero from '@/app/components/dashboard/DashboardHero';
 import DashboardShell from '@/app/components/dashboard/DashboardShell';
@@ -12,19 +12,21 @@ import { initializeDatabase } from '@/lib/initializeDatabase';
 import User from '@/database/User.model';
 import Job from '@/database/Job.model';
 import Company from '@/database/Company.model';
+import { HiOutlineMapPin } from 'react-icons/hi2';
+import Link from 'next/link';
 
 const sidebarItems: DashboardNavItem[] = [
-  { label: 'Dashboard', icon: HiOutlineViewGrid },
+  { label: 'Dashboard', icon: HiOutlineViewGrid,href: '/dashboard/user' },
   { label: 'Job Openings', icon: HiOutlineBriefcase, href: '/dashboard/user/job-openings' },
-  { label: 'Pipeline', icon: HiOutlineClipboardList },
-  { label: 'Analysis', icon: HiOutlineChartBar },
-  { label: 'Settings', icon: HiOutlineAdjustments },
+  { label: 'Resumes', icon: HiOutlineClipboardList, href: '/dashboard/user/resumes' },
+
 ];
 
-export default async function JobDetailsPage({ params }: { params: { id: string } }) {
+export default async function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   return (
     <Suspense fallback={<JobDetailsSkeleton />}>
-      <JobDetailsContent id={params.id} />
+      <JobDetailsContent id={id} />
     </Suspense>
   );
 }
@@ -117,7 +119,7 @@ async function JobDetailsContent({ id }: { id: string }) {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <HiOutlineMapPin className="mt-0.5 h-5 w-5 text-slate-500" />
+                 <HiOutlineMapPin className="mt-0.5 h-5 w-5 text-slate-500" />
                 <div>
                   <p className="text-sm font-medium text-slate-900">Location</p>
                   <p className="text-sm text-slate-600">{job.location}</p>
@@ -153,9 +155,9 @@ async function JobDetailsContent({ id }: { id: string }) {
             </div>
           </div>
 
-          <button className="w-full rounded-xl bg-[#1f3f99] px-6 py-3 text-sm font-semibold text-white hover:bg-[#16307a] transition-colors">
+          <Link href={`/dashboard/user/job-openings/${job._id?.toString()}/apply`} className="w-full block text-center rounded-xl bg-[#1f3f99] px-6 py-3 text-sm font-semibold text-white hover:bg-[#16307a] transition-colors">
             Apply Now
-          </button>
+          </Link>
         </div>
       </div>
     </DashboardShell>

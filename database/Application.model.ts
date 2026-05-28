@@ -5,6 +5,12 @@ export interface IApplication extends Document {
   applicationId: mongoose.Schema.Types.ObjectId;
   userId: mongoose.Schema.Types.ObjectId;
   jobId: mongoose.Schema.Types.ObjectId;
+  resumeId: mongoose.Schema.Types.ObjectId;
+  name: string;
+  email: string;
+  phone: string;
+  skills: string[];
+  experience: string;
   applicationDate: Date;
   status: string;
   matchPercentage: number;
@@ -18,12 +24,46 @@ const applicationSchema = new Schema<IApplication>(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       required: [true, 'User ID is required'],
-      ref: 'User', // Reference to User model for population
+      ref: 'User', 
     },
     jobId: {
       type: mongoose.Schema.Types.ObjectId,
       required: [true, 'Job ID is required'],
-      ref: 'Job', // Reference to Job model for population
+      ref: 'Job', 
+    },
+    resumeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: [true, 'Resume ID is required'],
+      ref: 'Resume',
+    },
+    name: {
+      type: String,
+      required: [true, 'Name is required'],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      trim: true,
+      lowercase: true,
+    },
+    phone: {
+      type: String,
+      required: [true, 'Phone number is required'],
+      trim: true,
+    },
+    skills: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: (v: string[]) => Array.isArray(v),
+        message: 'Skills must be an array of strings',
+      },
+    },
+    experience: {
+      type: String,
+      trim: true,
+      required: [true, 'Experience is required'],
     },
     applicationDate: {
       type: Date,

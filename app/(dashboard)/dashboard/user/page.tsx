@@ -32,61 +32,13 @@ import User from '@/database/User.model';
 import { Suspense } from 'react';
 
 const sidebarItems: DashboardNavItem[] = [
-  { label: 'Dashboard', icon: HiOutlineViewGrid },
+  { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/user' },
   { label: 'Job Openings', icon: HiOutlineBriefcase, href: '/dashboard/user/job-openings' },
-  { label: 'Pipeline', icon: HiOutlineClipboardList },
-  { label: 'Analysis', icon: HiOutlineChartBar },
-  { label: 'Settings', icon: HiOutlineAdjustments },
+  { label: 'Resumes', icon: HiOutlineClipboardList, href: '/dashboard/user/resumes' },
+
 ];
 
-const stats: DashboardStat[] = [
-  {
-    label: 'Active Jobs',
-    value: '24',
-    detail: '+12%',
-    icon: HiOutlineBriefcase,
-    tone: 'text-emerald-600',
-  },
-  {
-    label: 'New Applicants',
-    value: '148',
-    detail: '8 new today',
-    icon: HiOutlineUsers,
-    tone: 'text-blue-700',
-  },
-  {
-    label: 'Interviews',
-    value: '12',
-    detail: 'scheduled this week',
-    icon: HiOutlineCalendar,
-    tone: 'text-amber-600',
-  },
-];
 
-const jobs: DashboardJobItem[] = [];
-
-const activities: DashboardActivity[] = [
-  {
-    title: 'Alex Rivera ranked #1 for Frontend Dev.',
-    time: '18 mins ago',
-    dot: 'bg-[#0f3f8f]',
-  },
-  {
-    title: 'Team Meeting scheduled for interviews.',
-    time: '2 hrs ago',
-    dot: 'bg-amber-400',
-  },
-  {
-    title: 'New AI Score generated for Data Architect pool.',
-    time: '4 hrs ago',
-    dot: 'bg-[#0f3f8f]',
-  },
-  {
-    title: 'Offer Extended to candidate ID #4492.',
-    time: 'Yesterday',
-    dot: 'bg-teal-600',
-  },
-];
 
 export default async function UserDashboardPage() {
   return (
@@ -106,6 +58,8 @@ async function UserDashboardContent() {
       location: string;
     }>();
 
+  const totalJobsCount = await Job.countDocuments();
+
   const recentJobs = await Job.find()
     .sort({ createdAt: -1 })
     .limit(6)
@@ -114,6 +68,30 @@ async function UserDashboardContent() {
   if (!user) {
     redirect('/login');
   }
+
+  const stats: DashboardStat[] = [
+    {
+      label: 'Active Jobs',
+      value: totalJobsCount.toString(),
+      detail: 'Apply Now',
+      icon: HiOutlineBriefcase,
+      tone: 'text-emerald-600',
+    },
+    // {
+    //   label: 'New Applicants',
+    //   value: '148',
+    //   detail: '8 new today',
+    //   icon: HiOutlineUsers,
+    //   tone: 'text-blue-700',
+    // },
+    // {
+    //   label: 'Interviews',
+    //   value: '12',
+    //   detail: 'scheduled this week',
+    //   icon: HiOutlineCalendar,
+    //   tone: 'text-amber-600',
+    // },
+  ];
 
   const dashboardJobs: DashboardJobItem[] = recentJobs.map((job) => ({
     title: job.title,
@@ -150,15 +128,14 @@ async function UserDashboardContent() {
       >
         <DashboardHero
           title={"Welcome, " + user.name}
-          description="Here's what's happening with your hiring pipeline today."
-          action={{ label: 'Create New Job', icon: HiOutlinePlus }}
+          description="Explore the latest job openings, manage your resumes, and track your applications all in one place."
+        
         />
   
         <DashboardStatGrid stats={stats} />
   
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_292px]">
           <JobPostingsPanel title="Active Job Postings" jobs={dashboardJobs} matchLabel="Salary" />
-          <ActivityLogPanel title="Recent Activity" activities={activities} />
         </div>
       </DashboardShell>
     );

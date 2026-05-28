@@ -4,6 +4,8 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IResume extends Document {
   userId: mongoose.Schema.Types.ObjectId;
   fileUrl: string;
+  publicId?: string | null;
+  originalName?: string | null;
   extractedSkills: string[];
   extractedEducation: string;
   extractedExperience: string;
@@ -60,6 +62,16 @@ const resumeSchema = new Schema<IResume>(
       min: [0, 'AI score cannot be less than 0'],
       max: [100, 'AI score cannot exceed 100'],
       default: 0,
+    },
+    publicId: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    originalName: {
+      type: String,
+      trim: true,
+      default: null,
     },
   },
   {

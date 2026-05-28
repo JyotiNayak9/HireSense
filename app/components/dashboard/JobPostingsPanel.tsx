@@ -1,4 +1,5 @@
 import type { DashboardJobItem } from './types';
+import Link from 'next/link';
 
 interface JobPostingsPanelProps {
   title: string;
@@ -21,11 +22,12 @@ export default function JobPostingsPanel({
       </div>
 
       <div className="mt-5 space-y-4">
-        {jobs.map(({ title: jobTitle, meta, posted, match, icon: Icon, tone, dot }) => (
-          <article
-            key={jobTitle}
-            className="grid grid-cols-[48px_1fr_auto] items-center gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-          >
+        {jobs.map(({ title: jobTitle, meta, posted, match, icon: Icon, tone, dot, id, href }) => {
+          const content = (
+            <article
+              key={id ?? jobTitle}
+              className="grid grid-cols-[48px_1fr_auto] items-center gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+            >
             <div
               className={`flex h-12 w-12 items-center justify-center rounded-md ${
                 tone ?? 'bg-blue-50 text-[#1f3f99]'
@@ -51,8 +53,17 @@ export default function JobPostingsPanel({
                 {matchLabel}
               </span>
             </div>
-          </article>
-        ))}
+            </article>
+          );
+          if (href) {
+            return (
+              <Link key={id ?? jobTitle} href={href} className="block">
+                {content}
+              </Link>
+            );
+          }
+          return content;
+        })}
       </div>
     </section>
   );
