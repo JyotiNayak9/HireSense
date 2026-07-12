@@ -1,8 +1,11 @@
+
 import { NextRequest } from 'next/server';
 import { initializeDatabase } from '@/lib/initializeDatabase';
 import User from '@/database/User.model';
 import { successResponse, errorResponse, validationErrorResponse } from '@/lib/apiResponse';
 import { validateCreateUser } from '@/lib/validations/userValidation';
+
+
 import {
   generateOTP,
   storeOTP,
@@ -11,8 +14,9 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log(process.env.MONGODBURI)
     await initializeDatabase();
-
+    
     const formData = await request.formData();
 
     const body: Record<string, any> = {};

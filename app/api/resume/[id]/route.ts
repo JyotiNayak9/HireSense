@@ -53,11 +53,18 @@ export async function DELETE(
         await cloudinary.uploader.destroy((resume as any).publicId, { resource_type: 'auto' });
       } else {
         const fileUrl = resume.fileUrl;
-        if (fileUrl) {
-          const url = new URL(fileUrl);
-          const filename = path.basename(url.pathname);
-          const filePath = path.join(process.cwd(), 'public', 'uploads', 'resumes', filename);
+        if (typeof fileUrl === 'string' && fileUrl.startsWith('/')) {
+          const filePath = path.join(process.cwd(), 'public', fileUrl.replace(/^\/+/, ''));
           await fs.unlink(filePath).catch(() => {});
+        } else if (fileUrl) {
+          try {
+            const url = new URL(fileUrl);
+            const filename = path.basename(url.pathname);
+            const filePath = path.join(process.cwd(), 'public', 'uploads', 'resumes', filename);
+            await fs.unlink(filePath).catch(() => {});
+          } catch {
+            // ignore invalid URL values
+          }
         }
       }
     } catch (e) {

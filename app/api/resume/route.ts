@@ -8,12 +8,17 @@ import { v2 as cloudinary } from 'cloudinary';
 import { HfInference } from '@huggingface/inference';
 import { PDFParse } from 'pdf-parse';
 import mammoth from 'mammoth';
+import fs from 'fs/promises';
 import path from 'path';
+import { randomUUID } from 'crypto';
 import { extractSkills, extractYearsFromText, extractEducationLabel } from '@/lib/ranking/rankingService';
 import Application from '@/database/Application.model';
 import { recalculateApplicationRanking } from '@/lib/ranking/applicationRanking';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const CLOUDINARY_UPLOAD_TIMEOUT_MS = 4000;
+const PARSE_TIMEOUT_MS = 3000;
+const EMBEDDING_TIMEOUT_MS = 1500;
 
 type UploadedResumeFile = Blob & {
   name: string;
@@ -22,6 +27,61 @@ type UploadedResumeFile = Blob & {
 };
 
 const hf = new HfInference(process.env.HF_TOKEN);
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms);
+    promise
+      .then((value) => {
+        clearTimeout(timer);
+        resolve(value);
+      })
+      .catch((error) => {
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
+}
+
+async function saveResumeLocally(file: UploadedResumeFile, buffer: Buffer) {
+  const ext = path.extname(file.name || '').toLowerCase() || (file.type === 'application/pdf' ? '.pdf' : '.docx');
+  const filename = `${Date.now()}-${randomUUID()}${ext}`;
+  const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'resumes');
+  await fs.mkdir(uploadDir, { recursive: true });
+  const filePath = path.join(uploadDir, filename);
+  await fs.writeFile(filePath, buffer);
+
+  return {
+    fileUrl: `/uploads/resumes/${filename}`,
+    publicId: null as string | null,
+    storage: 'local' as const,
+  };
+}
+
+async function uploadResumeToStorage(file: UploadedResumeFile, buffer: Buffer) {
+  try {
+    const base64 = buffer.toString('base64');
+    const dataUri = `data:${file.type};base64,${base64}`;
+
+    const uploadResult = await withTimeout(
+      cloudinary.uploader.upload(dataUri, {
+        resource_type: 'raw',
+        folder: 'hiresense/resumes',
+      }),
+      CLOUDINARY_UPLOAD_TIMEOUT_MS,
+      'Cloudinary upload timed out'
+    );
+
+    return {
+      fileUrl: uploadResult.secure_url,
+      publicId: uploadResult.public_id,
+      storage: 'cloudinary' as const,
+    };
+  } catch (error) {
+    console.warn('[RESUME_CLOUDINARY_FALLBACK]', error);
+    return saveResumeLocally(file, buffer);
+  }
+}
 
 function preprocessText(text: string) {
   return text
@@ -37,10 +97,14 @@ async function getEmbedding(text: string) {
   }
 
   try {
-    const embedding = await hf.featureExtraction({
-      model: 'sentence-transformers/all-MiniLM-L6-v2',
-      inputs: text,
-    });
+    const embedding = await withTimeout(
+      hf.featureExtraction({
+        model: 'sentence-transformers/all-MiniLM-L6-v2',
+        inputs: text,
+      }),
+      EMBEDDING_TIMEOUT_MS,
+      'Embedding generation timed out'
+    );
 
     if (Array.isArray(embedding)) {
       return embedding as number[];
@@ -81,7 +145,7 @@ async function extractTextFromUploadedPdf(file: UploadedResumeFile, buffer: Buff
 
   try {
     const parser = new PDFParse({ data: new Uint8Array(buffer) });
-    const data = await parser.getText();
+    const data = await withTimeout(parser.getText(), PARSE_TIMEOUT_MS, 'PDF parsing timed out');
     const text = data.text?.trim() || '';
 
     return {
@@ -110,7 +174,7 @@ async function extractTextFromUploadedDocx(file: UploadedResumeFile, buffer: Buf
   }
 
   try {
-    const result = await mammoth.extractRawText({ buffer });
+    const result = await withTimeout(mammoth.extractRawText({ buffer }), PARSE_TIMEOUT_MS, 'DOCX parsing timed out');
     const text = String(result.value || '').trim();
 
     return {
@@ -181,26 +245,19 @@ export async function POST(request: NextRequest) {
       return errorResponse('File too large', 400);
     }
 
-    // Upload to Cloudinary
     const buffer = Buffer.from(await file.arrayBuffer());
-    const base64 = buffer.toString('base64');
-    const dataUri = `data:${file.type};base64,${base64}`;
-
-    const uploadResult = await cloudinary.uploader.upload(dataUri, {
-      resource_type: 'raw',
-      folder: 'hiresense/resumes',
-    });
-
-    const fileUrl = uploadResult.secure_url;
-    const publicId = uploadResult.public_id;
+    const uploadResult = await uploadResumeToStorage(file, buffer);
+    const fileUrl = uploadResult.fileUrl;
+    const publicId = uploadResult.publicId;
 
     const userId = session.userId ?? session.accountId;
     const pdfExtraction = await extractTextFromUploadedPdf(file, buffer);
-    const extraction = pdfExtraction ?? (await extractTextFromUploadedDocx(file, buffer));
-
-    if (!extraction) {
-      return errorResponse('Failed to parse resume file', 500);
-    }
+    const extraction = pdfExtraction ?? (await extractTextFromUploadedDocx(file, buffer)) ?? {
+      text: '',
+      keywords: [],
+      status: 'failed' as const,
+      error: 'The resume could not be parsed. You can still keep the file and try again later.',
+    };
 
     const cleanedText = preprocessText(extraction.text || '');
     const embedding = await getEmbedding(cleanedText || extraction.text || file.name);
@@ -230,17 +287,17 @@ export async function POST(request: NextRequest) {
     // Optionally link resumeId to user (non-destructive: leave existing resumeId as-is)
     await User.findByIdAndUpdate(userId, { $set: { /* no-op */ } });
 
-    // Recalculate rankings for any applications that reference this resume
-    try {
-      const apps = await Application.find({ resumeId: resume._id }).select('_id').lean();
-      for (const app of apps) {
-        // fire-and-forget but await to keep operations predictable during upload
-        // eslint-disable-next-line no-await-in-loop
-        await recalculateApplicationRanking(String(app._id));
+    void (async () => {
+      try {
+        const apps = await Application.find({ resumeId: resume._id }).select('_id').lean();
+        for (const app of apps) {
+          // eslint-disable-next-line no-await-in-loop
+          await recalculateApplicationRanking(String(app._id));
+        }
+      } catch (recalcErr) {
+        console.warn('[RESUME_RECALC_WARN]', recalcErr);
       }
-    } catch (recalcErr) {
-      console.warn('[RESUME_RECALC_WARN]', recalcErr);
-    }
+    })();
 
     return successResponse(resume, 'Resume uploaded', 201);
   } catch (err) {

@@ -3,6 +3,8 @@ import { initializeDatabase } from '@/lib/initializeDatabase';
 import Resume from '@/database/Resume.model';
 import { errorResponse } from '@/lib/apiResponse';
 import { getAuthSession } from '@/lib/auth';
+import fs from 'fs/promises';
+import path from 'path';
 
 export async function GET(
   request: NextRequest,
@@ -42,12 +44,25 @@ export async function GET(
       return errorResponse('File not available', 404);
     }
 
-    const fetched = await fetch(fileUrl);
-    if (!fetched.ok) {
-      return errorResponse('Failed to fetch file', 502);
-    }
+    let arrayBuffer: ArrayBuffer;
+    let contentType = 'application/octet-stream';
 
-    const arrayBuffer = await fetched.arrayBuffer();
+    if (typeof fileUrl === 'string' && fileUrl.startsWith('/')) {
+      const filePath = path.join(process.cwd(), 'public', fileUrl.replace(/^\/+/, ''));
+      const fileBuffer = await fs.readFile(filePath).catch(() => null);
+      if (!fileBuffer) {
+        return errorResponse('File not available', 404);
+      }
+      arrayBuffer = fileBuffer.buffer.slice(fileBuffer.byteOffset, fileBuffer.byteOffset + fileBuffer.byteLength);
+      contentType = 'application/octet-stream';
+    } else {
+      const fetched = await fetch(fileUrl);
+      if (!fetched.ok) {
+        return errorResponse('Failed to fetch file', 502);
+      }
+      arrayBuffer = await fetched.arrayBuffer();
+      contentType = fetched.headers.get('content-type') || 'application/octet-stream';
+    }
 
     const filename = resume.originalName ?? 'resume.pdf';
     const ext = filename.split('.').pop()?.toLowerCase() ?? 'pdf';
@@ -61,7 +76,7 @@ export async function GET(
       txt: 'text/plain',
       rtf: 'application/rtf',
     };
-    const contentType = mimeMap[ext] || fetched.headers.get('content-type') || 'application/octet-stream';
+    const resolvedContentType = mimeMap[ext] || contentType;
     const download = new URL(request.url).searchParams.get('download') === '1';
     const disposition = download
       ? `attachment; filename="${filename}"`
@@ -70,7 +85,7 @@ export async function GET(
     return new Response(Buffer.from(arrayBuffer), {
       status: 200,
       headers: {
-        'Content-Type': contentType,
+        'Content-Type': resolvedContentType,
         'Content-Disposition': disposition,
       },
     });
