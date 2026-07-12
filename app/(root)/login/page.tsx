@@ -73,6 +73,8 @@ export default function LoginPage() {
         return;
       }
 
+
+
       toast.success("Login successful.");
       router.push(
         result.data?.accountType === "company"

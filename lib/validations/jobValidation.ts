@@ -24,6 +24,15 @@ export const createJobSchema = Joi.object({
     'date.greater': 'Deadline must be a future date',
     'any.required': 'Deadline is required',
   }),
+  description: Joi.string().trim().min(20).max(3000).required().messages({
+    'string.empty': 'Job description is required',
+    'string.min': 'Job description must be at least 20 characters',
+    'string.max': 'Job description cannot exceed 3000 characters',
+  }),
+  requiredSkills: Joi.array().items(Joi.string().trim().required()).min(1).required().messages({
+    'array.min': 'Please add at least one required skill',
+    'any.required': 'Required skills are required',
+  }),
 });
 
 export const updateJobSchema = Joi.object({

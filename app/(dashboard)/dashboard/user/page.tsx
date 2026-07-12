@@ -1,19 +1,12 @@
 import { redirect } from 'next/navigation';
 import { requireCandidateSession } from '@/lib/auth';
 import {
-  HiOutlineAdjustments,
   HiOutlineBriefcase,
-  HiOutlineCalendar,
   HiOutlineChartBar,
   HiOutlineClipboardList,
-  HiOutlineCode,
-  HiOutlineDatabase,
-  HiOutlinePlus,
-  HiOutlineUsers,
   HiOutlineViewGrid,
+  HiOutlineStar,
 } from 'react-icons/hi';
-import Job from '@/database/Job.model';
-import ActivityLogPanel from '@/app/components/dashboard/ActivityLogPanel';
 import DashboardHero from '@/app/components/dashboard/DashboardHero';
 import DashboardShell from '@/app/components/dashboard/DashboardShell';
 import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
@@ -21,13 +14,14 @@ import DashboardStatGrid from '@/app/components/dashboard/DashboardStatGrid';
 import DashboardTopbar from '@/app/components/dashboard/DashboardTopbar';
 import JobPostingsPanel from '@/app/components/dashboard/JobPostingsPanel';
 import type {
-  DashboardActivity,
   DashboardJobItem,
   DashboardNavItem,
   DashboardStat,
 } from '@/app/components/dashboard/types';
 import { initializeDatabase } from '@/lib/initializeDatabase';
 import User from '@/database/User.model';
+import Job from '@/database/Job.model';
+import { getRecommendedJobsForCandidate } from '@/lib/ranking/recommendations';
 import { Suspense } from 'react';
 
 const sidebarItems: DashboardNavItem[] = [
@@ -59,14 +53,13 @@ async function UserDashboardContent() {
 
   const totalJobsCount = await Job.countDocuments();
 
-  const recentJobs = await Job.find()
-    .sort({ createdAt: -1 })
-    .limit(6)
-    .lean();
-
   if (!user) {
     redirect('/login');
   }
+
+  const userId = (session.userId ?? session.accountId) as string;
+  const recommendations = await getRecommendedJobsForCandidate(userId);
+  const topRecommendations = recommendations.slice(0, 6);
 
   const stats: DashboardStat[] = [
     {
@@ -76,32 +69,25 @@ async function UserDashboardContent() {
       icon: HiOutlineBriefcase,
       tone: 'text-emerald-600',
     },
-    // {
-    //   label: 'New Applicants',
-    //   value: '148',
-    //   detail: '8 new today',
-    //   icon: HiOutlineUsers,
-    //   tone: 'text-blue-700',
-    // },
-    // {
-    //   label: 'Interviews',
-    //   value: '12',
-    //   detail: 'scheduled this week',
-    //   icon: HiOutlineCalendar,
-    //   tone: 'text-amber-600',
-    // },
+    {
+      label: 'Recommended for You',
+      value: recommendations.length.toString(),
+      detail: 'Based on your resume',
+      icon: HiOutlineStar,
+      tone: 'text-amber-600',
+    },
   ];
 
-  const dashboardJobs: DashboardJobItem[] = recentJobs.map((job) => ({
+  const dashboardJobs: DashboardJobItem[] = topRecommendations.map((job) => ({
     title: job.title,
-    meta: `${job.location} • ${job.jobType}`,
+    meta: `${job.companyName || 'Unknown'} • ${job.location} • ${job.jobType}`,
     posted: `Posted ${new Date(job.createdAt).toLocaleDateString()}`,
-    match: job.salaryRange || 'Salary not listed',
+    match: `${job.matchScore}%`,
     icon: HiOutlineBriefcase,
-    tone: job.salaryRange ? 'bg-[#1f3f99] text-white' : 'bg-blue-50 text-[#1f3f99]',
-    dot: 'bg-[#1f3f99]',
-    id: job._id.toString(),
-    href: `/dashboard/user/job-openings/${job._id.toString()}`,
+    tone: job.matchScore >= 70 ? 'bg-emerald-100 text-emerald-700' : job.matchScore >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700',
+    dot: job.matchScore >= 70 ? 'bg-emerald-500' : job.matchScore >= 40 ? 'bg-amber-500' : 'bg-slate-400',
+    id: job.jobId,
+    href: `/dashboard/user/job-openings/${job.jobId}`,
   }));
 
   return (
@@ -137,7 +123,7 @@ async function UserDashboardContent() {
         <DashboardStatGrid stats={stats} />
   
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_292px]">
-          <JobPostingsPanel title="Active Job Postings" jobs={dashboardJobs} matchLabel="Salary" />
+          <JobPostingsPanel title="Recommended for You" jobs={dashboardJobs} matchLabel="Match" />
         </div>
       </DashboardShell>
     );

@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { HiOutlineBriefcase, HiOutlineChartBar, HiOutlineClipboardList, HiOutlineViewGrid } from 'react-icons/hi';
+import { HiOutlineBriefcase, HiOutlineChartBar, HiOutlineClipboardList, HiOutlineViewGrid, HiOutlineStar } from 'react-icons/hi';
 import DashboardHero from '@/app/components/dashboard/DashboardHero';
 import DashboardShell from '@/app/components/dashboard/DashboardShell';
 import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
@@ -11,6 +11,7 @@ import { initializeDatabase } from '@/lib/initializeDatabase';
 import User from '@/database/User.model';
 import Job from '@/database/Job.model';
 import '@/database/Company.model';
+import { getRecommendedJobsForCandidate } from '@/lib/ranking/recommendations';
 import Link from 'next/link';
 
 type PopulatedCompany = {
@@ -50,10 +51,20 @@ async function JobOpeningsContent() {
     redirect('/login');
   }
 
-  const jobs = await Job.find()
+  const userId = (session.userId ?? session.accountId) as string;
+  const recommendations = await getRecommendedJobsForCandidate(userId);
+  const recommendationMap = new Map<string, number>();
+  for (const rec of recommendations) {
+    recommendationMap.set(rec.jobId, rec.matchScore);
+  }
+
+  const sortedJobs = [...(await Job.find()
     .populate('companyId', 'companyName location industry')
-    .sort({ createdAt: -1 })
-    .lean();
+    .lean())].sort((a, b) => {
+    const scoreA = recommendationMap.get(a._id.toString()) ?? -1;
+    const scoreB = recommendationMap.get(b._id.toString()) ?? -1;
+    return scoreB - scoreA;
+  });
 
   return (
     <DashboardShell
@@ -76,16 +87,17 @@ async function JobOpeningsContent() {
       />
 
       <div className="mt-10">
-        {jobs.length === 0 ? (
+        {sortedJobs.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-slate-600">No job openings available at the moment.</p>
           </div>
         ) : (
           <div className="grid gap-6">
-            {jobs.map((job) => {
+            {sortedJobs.map((job) => {
               const jobId = job._id?.toString();
               const company = job.companyId as unknown as PopulatedCompany;
-              const companyId = (company._id ?? job.companyId)?.toString();
+              const companyId = company?._id?.toString() || (job.companyId as any)?.toString();
+              const matchScore = recommendationMap.get(jobId!);
 
               return (
                 <article
@@ -131,7 +143,17 @@ async function JobOpeningsContent() {
                         Posted {new Date(job.createdAt || '').toLocaleDateString()}
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2 md:min-w-[120px]">
+                    <div className="flex flex-col items-end gap-2 md:min-w-[120px]">
+                      {matchScore !== undefined && (
+                        <div className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold ${
+                          matchScore >= 70 ? 'bg-emerald-50 text-emerald-700' :
+                          matchScore >= 40 ? 'bg-amber-50 text-amber-700' :
+                          'bg-slate-50 text-slate-500'
+                        }`}>
+                          <HiOutlineStar className="h-3.5 w-3.5" />
+                          {matchScore}% Match
+                        </div>
+                      )}
                       <div className="text-xs text-slate-500">
                         Deadline: {new Date(job.deadline || '').toLocaleDateString()}
                       </div>
