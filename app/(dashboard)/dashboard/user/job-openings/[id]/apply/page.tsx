@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { HiOutlineBriefcase, HiOutlineClipboardList, HiOutlineViewGrid } from 'react-icons/hi';
+import { HiOutlineBriefcase,HiOutlineChartBar, HiOutlineClipboardList, HiOutlineViewGrid } from 'react-icons/hi';
 import DashboardShell from '@/app/components/dashboard/DashboardShell';
 import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
 import DashboardTopbar from '@/app/components/dashboard/DashboardTopbar';
@@ -17,18 +17,19 @@ const sidebarItems: DashboardNavItem[] = [
   { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/user' },
   { label: 'Job Openings', icon: HiOutlineBriefcase, href: '/dashboard/user/job-openings' },
   { label: 'Resumes', icon: HiOutlineClipboardList, href: '/dashboard/user/resumes' },
+  { label: 'Applications', icon: HiOutlineChartBar, href: '/dashboard/user/applications' },
 ];
 
-export default async function ApplyPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function ApplyPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ApplyContent id={id} />
+      <ApplyContent params={params} />
     </Suspense>
   );
 }
 
-async function ApplyContent({ id }: { id: string }) {
+async function ApplyContent({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await requireCandidateSession();
   await initializeDatabase();
 

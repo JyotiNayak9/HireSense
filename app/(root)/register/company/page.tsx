@@ -118,17 +118,19 @@ export default function CompanySignupPage() {
             type: "server",
             message: result.message || "Failed to register company",
           });
+          toast.error(result.message || "Failed to register company");
         }
         return;
       }
 
-      toast.success("Company registered successfully, please log in.");
-      router.push("/login");
+      toast.success("OTP sent to your email. Please verify your email to complete registration.");
+      router.push("/verify-otp?email=" + encodeURIComponent(result.data.email) + "&type=company");
     } catch {
       setError("root", {
         type: "server",
         message: "An unexpected error occurred. Please try again.",
       });
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 

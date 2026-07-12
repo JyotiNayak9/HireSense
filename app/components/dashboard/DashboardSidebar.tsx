@@ -1,67 +1,71 @@
 import Link from 'next/link';
-import LogoutButton from './LogoutButton';
-import type { DashboardNavItem, DashboardProfile } from './types';
+import type { DashboardNavItem } from './types';
 
 interface DashboardSidebarProps {
   title: string;
   items: DashboardNavItem[];
-  profile?: DashboardProfile;
+  profile?: {
+    name: string;
+    subtitle?: string;
+    initials?: string;
+  };
 }
 
 export default function DashboardSidebar({
   title,
   items,
-  profile,
 }: DashboardSidebarProps) {
   return (
-    <aside className="border-r border-slate-200 bg-[#eef3fb] px-5 py-7 md:min-h-screen">
-      <div className="text-[22px] font-bold text-[#061b55]">{title}</div>
+    <aside className="w-full flex-col border-b border-slate-200 bg-white px-4 py-6 md:h-full md:w-64 md:border-b-0 md:border-r">
+      
+      {/* Category Header */}
+      <div className="px-3 mb-5">
+        <p className="text-lg font-bold uppercase tracking-wider text-slate-800">
+          {title || "Recruitment"}
+        </p>
+      </div>
 
-      <nav className="mt-10 space-y-3">
+      {/* Navigation Links */}
+      <nav className="flex flex-col gap-1.5">
         {items.map(({ label, icon: Icon, active, href }) => {
-          const className = `flex h-12 w-full items-center gap-4 rounded-lg px-4 text-left text-[13px] font-medium transition-colors ${
+          const className = `flex h-11 w-full items-center gap-3.5 rounded-xl px-4 text-left text-[17px] font-semibold transition-all duration-200 ease-out ${
             active
-              ? 'bg-[#203f99] text-white shadow-sm'
-              : 'text-[#22355f] hover:bg-white'
+              ? 'bg-[#203f99] text-white shadow-md shadow-blue-950/10 translate-x-1'
+              : 'text-slate-700 hover:bg-slate-200 hover:text-slate-900 hover:translate-x-1'
           }`;
 
           const content = (
             <>
-              <Icon className="h-4 w-4 shrink-0" />
-              {label}
+              <Icon 
+                className={`h-5 w-5 shrink-0 transition-colors ${
+                  active ? 'text-white' : 'text-slate-700 group-hover:text-[#203f99] text-[17px]'
+                }`} 
+              />
+              <span>{label}</span>
             </>
           );
 
           return href ? (
-            <Link key={label} href={href} className={className}>
+            <Link 
+              key={label} 
+              href={href} 
+              className={`group ${className}`}
+              aria-current={active ? 'page' : undefined}
+            >
               {content}
             </Link>
           ) : (
-            <button key={label} className={className} type="button">
+            <button 
+              key={label} 
+              className={`group ${className}`} 
+              type="button"
+              aria-pressed={active}
+            >
               {content}
             </button>
           );
         })}
       </nav>
-
-      {profile && (
-        <div className="mt-14 hidden border-t border-slate-300 pt-5 md:mt-[48vh] md:flex md:items-center md:gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[12px] font-bold text-[#203f99] shadow-sm">
-            {profile.initials}
-          </div>
-          <div className="flex-1">
-            <p className="text-[12px] font-bold leading-tight text-[#03173f]">
-              {profile.name}
-            </p>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">
-              {profile.subtitle}
-            </p>
-          </div>
-          <div className="ml-2">
-            <LogoutButton />
-          </div>
-        </div>
-      )}
     </aside>
   );
 }

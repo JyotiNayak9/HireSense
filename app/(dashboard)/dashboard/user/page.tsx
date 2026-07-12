@@ -14,7 +14,6 @@ import {
 } from 'react-icons/hi';
 import Job from '@/database/Job.model';
 import ActivityLogPanel from '@/app/components/dashboard/ActivityLogPanel';
-import DashboardFooter from '@/app/components/dashboard/DashboardFooter';
 import DashboardHero from '@/app/components/dashboard/DashboardHero';
 import DashboardShell from '@/app/components/dashboard/DashboardShell';
 import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
@@ -35,7 +34,7 @@ const sidebarItems: DashboardNavItem[] = [
   { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/user' },
   { label: 'Job Openings', icon: HiOutlineBriefcase, href: '/dashboard/user/job-openings' },
   { label: 'Resumes', icon: HiOutlineClipboardList, href: '/dashboard/user/resumes' },
-
+  { label: 'Applications', icon: HiOutlineChartBar, href: '/dashboard/user/applications' },
 ];
 
 
@@ -101,6 +100,8 @@ async function UserDashboardContent() {
     icon: HiOutlineBriefcase,
     tone: job.salaryRange ? 'bg-[#1f3f99] text-white' : 'bg-blue-50 text-[#1f3f99]',
     dot: 'bg-[#1f3f99]',
+    id: job._id.toString(),
+    href: `/dashboard/user/job-openings/${job._id.toString()}`,
   }));
 
   return (
@@ -117,14 +118,15 @@ async function UserDashboardContent() {
           />
         }
         topbar={
-          <DashboardTopbar/>
-        }
-        footer={
-          <DashboardFooter
-            copyright="(c) 2026 HireSense . All rights reserved."
-  
+          <DashboardTopbar
+          profile={{
+            name: user.name,
+              subtitle: 'user Account',
+              initials: user.name.slice(0, 2).toUpperCase(),
+          }}
           />
         }
+        
       >
         <DashboardHero
           title={"Welcome, " + user.name}
@@ -158,12 +160,7 @@ async function UserDashboardContent() {
         topbar={
           <DashboardTopbar/>
         }
-        footer={
-          <DashboardFooter
-            copyright="(c) 2026 HireSense . All rights reserved."
-            links={['Privacy Policy', 'Terms of Service', 'Help Center']}
-          />
-        }
+      
       >
         <div className="animate-pulse">
           <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">

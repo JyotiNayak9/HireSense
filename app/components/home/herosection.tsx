@@ -1,119 +1,114 @@
-import Link from "next/link";
+import OpenRegisterButton from "./OpenRegisterButton";
 
 export default function HeroSection() {
   return (
-    <section className="pt-14 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-0 grid lg:grid-cols-2 gap-12 items-center">
-        {/* Left text */}
-        <div>
-          <h1 className="font-bold text-[2.6rem] lg:text-[3.2rem] leading-[1.12] text-slate-900 tracking-tight mb-5">
-            The Future of Precision<br />
-            Hiring is{" "}
-            <span className="text-[#2563eb]">Here.</span>
-          </h1>
-          <p className="text-slate-700 text-[18px] leading-relaxed max-w-sm mb-8">
-            HireSense uses advanced AI to rank candidates with frightening accuracy, helping you find superior talent in minutes, not days.
-          </p>
-        
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1e3a5f] text-white text-sm font-semibold hover:bg-[#162d4a] transition-colors shadow-sm"
-            >
-              Get Started 
-            </Link>
+    <section className="relative pt-20 pb-18 bg-white overflow-hidden border-b border-slate-200">
+      {/* Structural Humanist Grid Graphic */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4.5rem_4.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_75%,transparent_100%)] pointer-events-none -z-10" />
+      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#18317a]/5 rounded-full filter blur-3xl pointer-events-none -z-10" />
 
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid lg:grid-cols-[1.15fr_0.85fr] gap-20 items-center relative z-10">
+        
+        {/* Left Dossier Typography Section */}
+        <div className="space-y-8 text-left">
+          
+          <h1 className="font-black text-5xl sm:text-6xl lg:text-[4rem] leading-[1.05] text-slate-800 tracking-tight">
+            The Future of Precision<br />
+            Hiring is Here.
+          </h1>
+          
+          <p className="text-slate-700 text-lg sm:text-xl font-medium leading-relaxed max-w-2xl">
+HireSense automatically ranks applicants based on their relevance, making the hiring process faster and more organized.          </p>
+        
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
+            <OpenRegisterButton
+              label="Get Started"
+              className="inline-flex items-center justify-center gap-3 px-8 h-14 rounded-xl bg-[#18317a] text-white text-sm font-bold uppercase tracking-wider hover:bg-[#12255c] transition-all shadow-md active:scale-[0.99]"
+            />
+          </div>
         </div>
 
-        {/* Right: Dashboard mockup */}
-        <div className="relative flex justify-center lg:justify-end">
-          {/* Outer rounded card with blue-tint bg */}
-          <div className="relative w-full max-w-[460px] bg-[#eef3ff] rounded-3xl p-5 shadow-sm">
-            {/* Mini dashboard */}
-            <div className="bg-[#1e3a5f] rounded-2xl p-5 shadow-lg mb-3">
-              {/* Fake chart header */}
-              <div className="flex items-center justify-between mb-4">
+        {/* Right Dashboard Data Mockup Grid */}
+        <div className="relative w-full flex justify-center mt-5 lg:justify-end">
+          <div className="relative w-full max-w-[480px] bg-slate-50 border border-slate-300 rounded-3xl p-6 shadow-md">
+            
+            {/* Dark High-Contrast Analytical Chart Box */}
+            <div className="bg-slate-950 rounded-2xl p-6 shadow-inner mb-5 border border-slate-800">
+              <div className="flex items-center justify-between mb-5">
                 <div>
-                  <p className="text-white/50 text-[10px] uppercase tracking-widest mb-1"> Overview</p>
-                  <p className="text-white font-bold text-lg">247 Candidates</p>
+                  <span className="text-slate-400 text-xs font-bold tracking-widest uppercase">System Overview</span>
+                  <p className="text-white font-black text-2xl tracking-tight mt-1">247 Candidates</p>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-2">
                   {["Active", "Review"].map((t) => (
-                    <span key={t} className="text-[10px] text-white/60 bg-white/10 px-2 py-0.5 rounded-full">{t}</span>
+                    <span key={t} className="text-xs font-bold tracking-wide text-white bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">{t}</span>
                   ))}
                 </div>
               </div>
-              {/* Fake donut / circle graphic */}
-              <div className="flex items-center justify-center py-4">
-                <div className="relative w-28 h-28">
+              
+              {/* Process Chart Display Container */}
+              <div className="flex items-center justify-center py-6">
+                <div className="relative w-40 h-40">
                   <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                    <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="14" />
-                    <circle cx="50" cy="50" r="38" fill="none" stroke="#60a5fa" strokeWidth="14"
-                      strokeDasharray="239" strokeDashoffset="60" strokeLinecap="round" />
-                    <circle cx="50" cy="50" r="38" fill="none" stroke="#a5b4fc" strokeWidth="14"
-                      strokeDasharray="239" strokeDashoffset="180" strokeLinecap="round" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#1e293b" strokeWidth="10" />
+                    <circle 
+                      cx="50" 
+                      cy="50" 
+                      r="40" 
+                      fill="none" 
+                      stroke="#18317a" 
+                      strokeWidth="10"
+                      strokeDasharray="251.2" 
+                      strokeDashoffset="65.3" 
+                      strokeLinecap="round" 
+                    />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-white font-bold text-xl">74%</span>
-                    <span className="text-white/50 text-[9px]">matched</span>
+                    <span className="text-white font-black text-3xl tracking-tight">74%</span>
+                    <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mt-0.5">Avg Index</span>
                   </div>
                 </div>
               </div>
-              {/* Legend */}
-              <div className="flex justify-center gap-5 mt-1">
-                {[["#60a5fa", "Qualified"], ["#a5b4fc", "Review"], ["rgba(255,255,255,0.15)", "Pending"]].map(([c, l]) => (
-                  <div key={l} className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full" style={{ background: c }} />
-                    <span className="text-[10px] text-white/50">{l}</span>
+              
+              {/* Segment Legends */}
+              <div className="flex justify-center gap-6 mt-2 border-t border-slate-800 pt-4">
+                {[["#18317a", "Qualified Match"], ["#1e293b", "Unranked Pool"]].map(([c, l]) => (
+                  <div key={l} className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ background: c }} />
+                    <span className="text-xs font-bold text-slate-300">{l}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Bottom candidate cards */}
-            <div className="space-y-2">
+            {/* Candidates Data Rows with Bold Dark Text Typography */}
+            <div className="space-y-3">
               {[
-                { name: "Jyoti Nayak", role: "Senior Engineer", score: 94, color: "#22c55e" },
-                { name: "Prerana Kafle", role: "Product Designer", score: 88, color: "#3b82f6" },
+                { name: "Jyoti Nayak", role: "Senior Engineer", score: 94, color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200", avatar: "JN" },
+                { name: "Prerana Kafle", role: "Product Designer", score: 88, color: "text-[#18317a]", bg: "bg-blue-50 border-blue-200", avatar: "PK" },
+                { name: "Nitu Kushwaha", role: "Frontend Dev", score: 91, color: "text-violet-700", bg: "bg-violet-50 border-violet-200", avatar: "NK" },
               ].map((c) => (
-                <div key={c.name} className="flex items-center justify-between bg-white rounded-xl px-4 py-3 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
-                      style={{ background: c.color + "33", color: c.color }}
-                    >
-                      {c.name[0]}
+                <div key={c.name} className="flex items-center justify-between bg-white rounded-xl p-4 border border-slate-300 shadow-sm">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className={`w-10 h-10 rounded-xl ${c.bg} border flex items-center justify-center ${c.color} text-sm font-black shrink-0`}>
+                      {c.avatar}
                     </div>
-                    <div>
-                      <p className="text-[12px] font-semibold text-slate-800">{c.name}</p>
-                      <p className="text-[10px] text-slate-400">{c.role}</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-black text-slate-950 truncate">{c.name}</p>
+                      <p className="text-xs font-bold text-slate-600 truncate">{c.role}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="text-[11px] font-bold" style={{ color: c.color }}>{c.score}%</div>
-                    <div className="text-[10px] text-slate-400">match</div>
+                  <div className="flex items-center gap-2 shrink-0 text-right">
+                    <span className={`text-sm font-black ${c.color}`}>{c.score}%</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Match</span>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Floating tag */}
-            {/* <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-md px-3.5 py-2.5 flex items-center gap-2 border border-slate-100">
-              <div className="w-6 h-6 rounded-lg bg-green-100 flex items-center justify-center">
-                <svg viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-green-600">
-                  <path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold text-slate-800">Auto Shortlist</p>
-                <p className="text-[10px] text-slate-400">12 candidates ready</p>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>
-
-      {/* Soft bottom separator */}
-      <div className="h-16" />
     </section>
   );
 }

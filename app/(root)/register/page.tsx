@@ -87,18 +87,20 @@ type FormData = yup.InferType<typeof schema>;
           setError("root", {
             type: "server",
             message: result.message || "Failed to create user",
-          });
+          })
+          toast.error(result.message || "Failed to create user");
         }
         return;
       }
 
-      toast.success("Account created successfully, Please Login.")
-      router.push("/login");
+      toast.success("OTP sent to your email. Please verify your email to complete registration.");
+      router.push(`/verify-otp?email=${encodeURIComponent(result.data.email)}&type=candidate`);
     } catch {
       setError("root", {
         type: "server",
         message: "An unexpected error occurred. Please try again.",
-      });
+      })
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 
@@ -106,7 +108,7 @@ type FormData = yup.InferType<typeof schema>;
     <div className="min-h-screen flex flex-col bg-white font-sans mt-10">
       <div className="flex flex-col justify-between mt-2">
         <div className="flex-1 flex items-center justify-center px-8 py-12">
-          <div className="w-full max-w-100 ">
+          <div className="w-full max-w-100 text-center">
             <div className="flex items-center gap-2 mb-6">
               <Image src={logo} alt="HireSense Logo" width={30} height={30} />
               <span className="font-bold text-[14px] text-slate-800">

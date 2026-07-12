@@ -2,10 +2,10 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 
 export interface IApplication extends Document {
-  applicationId: mongoose.Schema.Types.ObjectId;
-  userId: mongoose.Schema.Types.ObjectId;
-  jobId: mongoose.Schema.Types.ObjectId;
-  resumeId: mongoose.Schema.Types.ObjectId;
+  applicationId: mongoose.Types.ObjectId | string;
+  userId: mongoose.Types.ObjectId | string;
+  jobId: mongoose.Types.ObjectId | string;
+  resumeId: mongoose.Types.ObjectId | string;
   name: string;
   email: string;
   phone: string;
@@ -14,6 +14,10 @@ export interface IApplication extends Document {
   applicationDate: Date;
   status: string;
   matchPercentage: number;
+  matchedKeywords: string[];
+  missingKeywords: string[];
+  rankingEngine?: string;
+  rankingCalculatedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -82,6 +86,23 @@ const applicationSchema = new Schema<IApplication>(
       min: [0, 'Match percentage cannot be less than 0'],
       max: [100, 'Match percentage cannot exceed 100'],
       default: 0,
+    },
+    matchedKeywords: {
+      type: [String],
+      default: [],
+    },
+    missingKeywords: {
+      type: [String],
+      default: [],
+    },
+    rankingEngine: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    rankingCalculatedAt: {
+      type: Date,
+      default: null,
     },
   },
   {

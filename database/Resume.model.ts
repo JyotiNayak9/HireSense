@@ -2,10 +2,18 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 
 export interface IResume extends Document {
-  userId: mongoose.Schema.Types.ObjectId;
+  userId: mongoose.Types.ObjectId | string;
+  candidateId: mongoose.Types.ObjectId | string;
   fileUrl: string;
   publicId?: string | null;
   originalName?: string | null;
+  parsedText: string;
+  resumeText: string;
+  cleanedText?: string;
+  embedding?: number[];
+  parseStatus: 'pending' | 'completed' | 'failed';
+  parseError?: string | null;
+  parsedAt?: Date | null;
   extractedSkills: string[];
   extractedEducation: string;
   extractedExperience: string;
@@ -22,6 +30,11 @@ const resumeSchema = new Schema<IResume>(
       type: mongoose.Schema.Types.ObjectId,
       required: [true, 'User ID is required'],
       ref: 'User', 
+    },
+    candidateId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: [true, 'Candidate ID is required'],
+      ref: 'User',
     },
     fileUrl: {
       type: String,
@@ -73,6 +86,36 @@ const resumeSchema = new Schema<IResume>(
       trim: true,
       default: null,
     },
+    parsedText: {
+      type: String,
+      default: '',
+    },
+    resumeText: {
+      type: String,
+      default: '',
+    },
+    cleanedText: {
+      type: String,
+      default: '',
+    },
+    embedding: {
+      type: [Number],
+      default: [],
+    },
+    parseStatus: {
+      type: String,
+      enum: ['pending', 'completed', 'failed'],
+      default: 'pending',
+    },
+    parseError: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    parsedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true, 
@@ -82,6 +125,7 @@ const resumeSchema = new Schema<IResume>(
 
 resumeSchema.index({ userId: 1 });
 resumeSchema.index({ aiScore: -1 }); 
+resumeSchema.index({ parseStatus: 1 });
 
 
 const Resume: Model<IResume> =

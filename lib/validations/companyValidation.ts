@@ -82,6 +82,47 @@ export const createCompanySchema = Joi.object({
     }),
 });
 
+export const updateCompanySchema = Joi.object({
+  companyName: Joi.string()
+    .trim()
+    .min(2)
+    .max(150)
+    .required()
+    .messages({
+      'string.empty': 'Company name is required',
+      'string.min': 'Company name must be at least 2 characters',
+      'string.max': 'Company name cannot exceed 150 characters',
+    }),
+  location: Joi.string()
+    .trim()
+    .required()
+    .messages({
+      'string.empty': 'Location is required',
+    }),
+  industry: Joi.string()
+    .valid(...companyIndustries)
+    .required()
+    .messages({
+      'any.only': 'Please select a valid industry',
+      'string.empty': 'Industry is required',
+    }),
+  description: Joi.string()
+    .trim()
+    .max(2000)
+    .optional()
+    .allow('')
+    .messages({
+      'string.max': 'Description cannot exceed 2000 characters',
+    }),
+});
+
+export const validateUpdateCompany = (data: unknown) => {
+  return updateCompanySchema.validate(data, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+};
+
 export const validateCreateCompany = (data: unknown) => {
   return createCompanySchema.validate(data, {
     abortEarly: false,

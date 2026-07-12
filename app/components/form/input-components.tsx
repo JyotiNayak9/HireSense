@@ -1,133 +1,126 @@
-import { useController } from "react-hook-form"
-import { useState } from 'react';
+import { useController, type Control, type FieldPath, type FieldPathValue, type FieldValues } from "react-hook-form";
+import { useState, type ChangeEvent, type ReactNode } from 'react';
+import { HiOutlineChevronDown, HiOutlineX } from 'react-icons/hi';
 
-export interface InputLabelProps{
-    children: any, 
-    htmlFor: string
-}
-export const InputLabel = ({children, htmlFor}: InputLabelProps) => {
-    return(
-        <>
-        <label htmlFor={htmlFor} className="block text-[14px] font-semibold text-slate-700 mb-1.5"> {children} </label>
-        </>
-    )
-}
-export interface TextInputInterface {
-    control: any
-    name: string
-    defaultValue?: string | undefined
-    errMsg?: string
-    type?: string
-    row?:number
-    onChange?: any
+export interface InputLabelProps {
+  children: ReactNode;
+  htmlFor: string;
+  className?: string;
 }
 
-export const TextInputComponent = ({type="text",control,name, defaultValue, errMsg}: TextInputInterface) => {
-    const {field} = useController({
-        control: control,
-        name:name,
-        defaultValue: defaultValue,
-      
-    })
-    return(
-        <>
-        <input
-              type={type}           
-              {...field}
-            className={`w-full px-4 py-2.5 border rounded-lg text-[13px] text-slate-800 focus:outline-none focus:border-blue-accent focus:ring-2 focus:ring-blue-accent/10 transition-all ${
-                    errMsg ? "border-red-500" : "border-slate-400"
-                  }`}
-                />
-                {errMsg && (
-                  <p className="text-xs text-red-500 mt-1">{errMsg}</p>
-                )}
-           
-        </>
-    )
+export const InputLabel = ({ children, htmlFor, className = "" }: InputLabelProps) => {
+  return (
+    <label 
+      htmlFor={htmlFor} 
+      className={`block text-sm font-bold uppercase tracking-wider text-slate-800 mb-2 ${className}`}
+    >
+      {children}
+    </label>
+  );
+};
+
+export interface TextInputInterface<TFieldValues extends FieldValues = FieldValues> {
+  control: Control<TFieldValues>;
+  name: FieldPath<TFieldValues>;
+  defaultValue?: string | undefined;
+  errMsg?: string;
+  type?: string;
+  row?: number;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+  min?: string;
+  placeholder?: string;
 }
 
-// export const NumberInputComponent = ({type="number",control,name, defaultValue, errMsg=null}: TextInputInterface) => {
-//     const {field} = useController({
-//         control: control,
-//         name:name,
-//         defaultValue: defaultValue?? undefined,
-      
-//     })
-//     return(
-//         <>
-//         <input
-//               type={type}           
-//               {...field}
-//             className={`mt-1 w-full rounded-md  ${errMsg? 'border-red-500' : 'border-gray-200'} bg-white text-sm text-gray-700 shadow-sm focus:border-violet-600 focus:ring-violet-600`}
-//             />
-//             <span className="text-sm italic text-red-800">
-//              {errMsg}
-//             </span>
-//         </>
-//     )
-// }
+export const TextInputComponent = <TFieldValues extends FieldValues = FieldValues>({
+  type = "text",
+  control,
+  name,
+  defaultValue = "",
+  errMsg,
+  min,
+  placeholder
+}: TextInputInterface<TFieldValues>) => {
+  const { field } = useController({
+    control: control,
+    name: name,
+    defaultValue: defaultValue as FieldPathValue<TFieldValues, FieldPath<TFieldValues>>,
+  });
 
-// export const OTPInputComponent = ({type="number",control,name, onChange, defaultValue, errMsg=null}: TextInputInterface) => {
-//     const {field} = useController({
-//         control: control,
-//         name:name,
-//         defaultValue: defaultValue?? undefined,
-//     })
-//     return(
-//         <>
-//         <input
-//               type={type}
-//               {...field}
-//               onChange={(e) => {
-//                   field.onChange(e)
-//                   if (onChange) onChange(e)
-//               }}
-//             className={`mt-1 w-full rounded-md text-center text-lg tracking-widest  ${errMsg? 'border-red-500' : 'border-gray-200'} bg-white text-sm text-gray-700 shadow-sm focus:border-violet-600 focus:ring-violet-600`}
-//             />
-//             <span className="text-sm italic text-red-800">
-//              {errMsg}
-//             </span>
-//         </>
-//     )
-// }
+  return (
+    <div className="relative w-full">
+      <input
+        type={type}
+        {...field}
+        value={field.value ?? ""}
+        min={min}
+        placeholder={placeholder}
+        className={`w-full px-4 h-12 border rounded-xl text-[13px] font-medium text-slate-800 bg-white outline-none ring-offset-2 transition-all duration-200 ${
+          errMsg 
+            ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/5" 
+            : "border-slate-200 focus:border-[#203f99] focus:ring-4 focus:ring-[#203f99]/5"
+        }`}
+      />
+      {errMsg && (
+        <p className="text-xs font-semibold text-red-500 mt-1.5 px-0.5">{errMsg}</p>
+      )}
+    </div>
+  );
+};
 
+export const TextAreaInputComponent = <TFieldValues extends FieldValues = FieldValues>({
+  row = 5,
+  control,
+  name,
+  defaultValue = "",
+  errMsg,
+  placeholder
+}: TextInputInterface<TFieldValues>) => {
+  const { field } = useController({
+    control: control,
+    name: name,
+    defaultValue: defaultValue as FieldPathValue<TFieldValues, FieldPath<TFieldValues>>,
+  });
 
-export const TextAreaInputComponent = ({row=5,control,name, defaultValue,  errMsg}: TextInputInterface) => {
-    const {field} = useController({
-        control: control,
-        name:name,
-        defaultValue: defaultValue,
-       
-    })
-    return(
-        <>
-       <textarea 
-       {...field}
-       rows={row} 
-       style={{resize:"vertical"}} 
-       className={`w-full px-4 py-2.5 border rounded-lg text-[13px] text-slate-800 focus:outline-none focus:border-blue-accent focus:ring-2 focus:ring-blue-accent/10 transition-all ${
-                    errMsg ? "border-red-500" : "border-slate-400"
-                  }`}>
-       </textarea>
-                {errMsg && (
-                  <p className="text-xs text-red-500 mt-1">{errMsg}</p>
-                )}
-        </>
-    )
-}
+  return (
+    <div className="relative w-full">
+      <textarea
+        {...field}
+        value={field.value ?? ""}
+        rows={row}
+        placeholder={placeholder}
+        style={{ resize: "vertical" }}
+        className={`w-full px-4 py-3 border rounded-xl text-[13px] font-medium text-slate-800 placeholder-slate-400 bg-white outline-none transition-all duration-200 min-h-[100px] ${
+          errMsg 
+            ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/5" 
+            : "border-slate-200 focus:border-[#203f99] focus:ring-4 focus:ring-[#203f99]/5"
+        }`}
+      />
+      {errMsg && (
+        <p className="text-xs font-semibold text-red-500 mt-1.5 px-0.5">{errMsg}</p>
+      )}
+    </div>
+  );
+};
 
-interface TagInputProps {
-  control: any;
-  name: string;
+interface TagInputProps<TFieldValues extends FieldValues = FieldValues> {
+  control: Control<TFieldValues>;
+  name: FieldPath<TFieldValues>;
   defaultValue?: string[];
   errMsg?: string;
+  placeholder?: string;
 }
 
-export const TagInputComponent = ({ control, name, defaultValue = [], errMsg }: TagInputProps) => {
+export const TagInputComponent = <TFieldValues extends FieldValues = FieldValues>({
+  control,
+  name,
+  defaultValue = [],
+  errMsg,
+  placeholder = "Type skill and press Enter..."
+}: TagInputProps<TFieldValues>) => {
   const { field } = useController({
     name,
     control,
-    defaultValue,
+    defaultValue: defaultValue as FieldPathValue<TFieldValues, FieldPath<TFieldValues>>,
   });
 
   const [inputValue, setInputValue] = useState('');
@@ -146,18 +139,27 @@ export const TagInputComponent = ({ control, name, defaultValue = [], errMsg }: 
   };
 
   return (
-    <>
-      <div className={`rounded-lg border px-3 py-2 transition-all ${errMsg ? 'border-red-500' : 'border-slate-400'}`}>
-        <div className="mb-2 flex flex-wrap gap-2">
+    <div className="w-full">
+      <div 
+        className={`w-full rounded-xl border p-3 bg-white transition-all duration-200 ${
+          errMsg 
+            ? "border-red-500 focus-within:border-red-500 focus-within:ring-4 focus-within:ring-red-500/5" 
+            : "border-slate-200 focus-within:border-[#203f99] focus-within:ring-4 focus-within:ring-[#203f99]/5"
+        }`}
+      >
+        <div className="flex flex-wrap gap-1.5 empty:hidden mb-2">
           {tags.map((tag) => (
-            <span key={tag} className="inline-flex items-center rounded-full bg-slate-200 px-2 py-1 text-xs text-slate-700">
+            <span 
+              key={tag} 
+              className="inline-flex h-6 items-center rounded-lg bg-slate-100 px-2 text-xs font-bold text-slate-700 border border-slate-200/40 transition-colors hover:bg-slate-200"
+            >
               {tag}
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                className="ml-2 text-[10px] font-bold text-slate-500 hover:text-slate-900"
+                className="ml-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-md text-slate-400 hover:bg-slate-300 hover:text-slate-800 transition-colors"
               >
-                ×
+                <HiOutlineX className="h-2.5 w-2.5" />
               </button>
             </span>
           ))}
@@ -173,135 +175,113 @@ export const TagInputComponent = ({ control, name, defaultValue = [], errMsg }: 
               setInputValue('');
             }
           }}
-          placeholder="Type skill and press Enter or comma"
-          className="w-full border-none bg-transparent px-0 py-1 text-[13px] text-slate-800 focus:outline-none"
+          placeholder={tags.length === 0 ? placeholder : ""}
+          className="w-full bg-transparent px-0 py-0.5 text-[13px] font-medium text-slate-800 placeholder-slate-400 outline-none"
         />
       </div>
-      {errMsg && <p className="text-xs text-red-500 mt-1">{errMsg}</p>}
-    </>
+      {errMsg && (
+        <p className="text-xs font-semibold text-red-500 mt-1.5 px-0.5">{errMsg}</p>
+      )}
+    </div>
   );
+};
+
+export interface OptionType {
+  label: string;
+  value: string;
 }
 
-export interface OptionTpye{
-    label: string,
-    value:string 
-}
-export interface SelectOptionProps{
-    control:any
-    name: string
-   
-    errMsg?: string
-    options?: Array<OptionTpye>
-}
-export const SelectOptionComponent = ({options,control, name, errMsg}: SelectOptionProps) => {
-    const {field} = useController({
-        name: name,
-        control: control,      
-       
-    })
-    return(
-        <>
-        <select
-             {...field}
-className={`w-full px-4 py-2.5 border rounded-lg text-[13px] text-slate-800 focus:outline-none focus:border-blue-accent focus:ring-2 focus:ring-blue-accent/10 transition-all ${
-                    errMsg ? "border-red-500" : "border-slate-400"
-                  }`}            >
-                {
-                options && options.map((row:OptionTpye, i:number)=>(
-                    <option key={i} value={row.value}>{row.label}</option>
-                ))
-            }
-          </select>
-          {errMsg && (
-                  <p className="text-xs text-red-500 mt-1">{errMsg}</p>
-                )}
-
-             
-           
-        </>
-    )
+export interface SelectOptionProps<TFieldValues extends FieldValues = FieldValues> {
+  control: Control<TFieldValues>;
+  name: FieldPath<TFieldValues>;
+  errMsg?: string;
+  options?: Array<OptionType>;
 }
 
+export const SelectOptionComponent = <TFieldValues extends FieldValues = FieldValues>({
+  options,
+  control,
+  name,
+  errMsg
+}: SelectOptionProps<TFieldValues>) => {
+  const { field } = useController({
+    name: name,
+    control: control,
+    defaultValue: "" as FieldPathValue<TFieldValues, FieldPath<TFieldValues>>,
+  });
 
-export const RoleSelectComponent = ({control, name, errMsg}: SelectOptionProps) => {
-    return(
-        <>
-        <SelectOptionComponent
-        options= {
-            [{label:"Buyer",value:"customer"},{label:"Seller",value:"seller"}]
-        }
-        control={control}
-         name={name}
-    
-          errMsg={errMsg}
-        />
-        </>
-    )
+  return (
+    <div className="relative w-full">
+      <select
+        {...field}
+        value={field.value ?? ""}
+        className={`w-full px-4 h-10 border rounded-xl text-[13px] font-medium text-slate-800 bg-white outline-none appearance-none transition-all duration-200 ${
+          errMsg 
+            ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/5" 
+            : "border-slate-200 focus:border-[#203f99] focus:ring-4 focus:ring-[#203f99]/5"
+        }`}
+      >
+        {options && options.map((row: OptionType, i: number) => (
+          <option key={i} value={row.value}>{row.label}</option>
+        ))}
+      </select>
+      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+        <HiOutlineChevronDown className="h-4 w-4" />
+      </div>
+      {errMsg && (
+        <p className="text-xs font-semibold text-red-500 mt-1.5 px-0.5">{errMsg}</p>
+      )}
+    </div>
+  );
+};
+
+export const RoleSelectComponent = ({ control, name, errMsg }: SelectOptionProps) => {
+  return (
+    <SelectOptionComponent
+      options={[
+        { label: "Buyer", value: "customer" },
+        { label: "Seller", value: "seller" }
+      ]}
+      control={control}
+      name={name}
+      errMsg={errMsg}
+    />
+  );
+};
+
+export interface ButtonProps {
+  onClick?: () => void;
+  loading?: boolean;
+  children: ReactNode;
+  className?: string;
 }
 
-// export const StatusSelectComponent = ({control, name, errors}:SelectOptionProps) => {
-// return(
-//     <>
-//      <SelectComponent
-//         options= {
-//             [{label:"Publish",value:"active"},{label:"Unpublish",value:"inactive"}]
-//         }
-//         control={control}
-//          name={name}
-    
-//           errMsg={errMsg}
-//         />
-//     </>
-// )
-// }
+export const SubmitButton = ({ onClick, loading = false, children, className = "" }: ButtonProps) => {
+  return (
+    <button
+      onClick={onClick}
+      disabled={loading}
+      type="submit"
+      className={`w-full h-10 rounded-xl bg-[#18317a] hover:bg-blue-900 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-bold transition-all duration-200 shadow-sm flex items-center justify-center gap-2 outline-none focus:ring-4 focus:ring-[#203f99]/15 active:scale-[0.98] ${className}`}
+    >
+      {loading ? (
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+      ) : (
+        children
+      )}
+    </button>
+  );
+};
 
-
-export const SubmitButton = ({loading = false, children}: {loading:boolean, children : any}) => {
-    return (
-        <>
-          <button disabled={loading} type="submit" className="w-full py-3 rounded-lg bg-navy text-white text-[13px] font-bold hover:bg-navy-mid transition-colors shadow-sm flex items-center justify-center gap-2 mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
->
-            {children}
-        </button>
-        </>
-    )
-}
-
-
-
-export const CancelButton = ({loading = false, children}: {loading:boolean, children : any}) => {
-    return (
-        <>
-          <button disabled={loading} type="submit" className="disabled:cursor-not-allowed mx-3 op disabled:bg-red-300 inline-flex items-center px-5 py-3 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-red-700 rounded-lg focus:ring-4 focus:ring-red-200 dark:focus:ring-red-900 hover:bg-red-800">
-            {children}
-        </button>
-        </>
-    )
-}
-// export const ImageUpload = ({control,errMsg="",type="file",name}:ImageInputInterface) => { //onchange
-//     const {field: { onChange, ...restField },} = useController({
-//         control :control,
-//         name:name,
-//     });
-//     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//         const file = e.target.files?.[0];
-//         if (file) {
-//           onChange(file); 
-//         }
-//       };
-//     return(
-//         <>
-//         <input
-//         {...restField}
-//         className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-//        accept="image/*"
-//         onChange={handleImageChange}
-//         type={type}
-//         name={name}
-//       ></input>
-//       <span className="text-sm italic text-red-800">
-//              {errMsg}
-//             </span>
-//       </>
-//     )
-//     }
+export const CancelButton = ({ onClick, loading = false, children, className = "" }: ButtonProps) => {
+  return (
+    <button
+      onClick={onClick}
+      disabled={loading}
+      type="button"
+      className={`h-10 px-5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:bg-slate-50 text-slate-600 hover:text-slate-800 disabled:text-slate-400 disabled:cursor-not-allowed text-sm font-bold transition-all duration-200 outline-none active:scale-[0.98] ${className}`}
+    >
+      {children}
+    </button>
+  );
+};

@@ -3,14 +3,15 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 
 export interface ICompany extends Document {
-
   companyName: string;
   email: string;
   password: string;
   location: string;
   industry: string;
   description: string;
+  logo?: string;
   role: string;
+  isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -68,11 +69,19 @@ const companySchema = new Schema<ICompany>(
       trim: true,
       maxlength: [2000, 'Description cannot exceed 2000 characters'],
     },
+    logo: {
+      type: String,
+      trim: true,
+      default: null,
+    },
     role: {
       type: String,
       default: 'company',
     },
-
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true, 

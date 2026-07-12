@@ -5,6 +5,38 @@ import Job from '@/database/Job.model';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse, validationErrorResponse } from '@/lib/apiResponse';
 import { createJobSchema } from '@/lib/validations/jobValidation';
+import { HfInference } from '@huggingface/inference';
+
+const hf = new HfInference(process.env.HF_TOKEN);
+
+async function getEmbedding(text: string) {
+  if (!text.trim() || !process.env.HF_TOKEN) {
+    return [];
+  }
+
+  try {
+    const embedding = await hf.featureExtraction({
+      model: 'sentence-transformers/all-MiniLM-L6-v2',
+      inputs: text,
+    });
+
+    if (Array.isArray(embedding)) {
+      return embedding as number[];
+    }
+
+    if (typeof embedding === 'object' && embedding !== null && 'data' in embedding) {
+      const data = embedding as { data?: number[] };
+      if (Array.isArray(data.data)) {
+        return data.data;
+      }
+    }
+
+    return [];
+  } catch (error) {
+    console.warn('[HF_JOB_EMBEDDING_WARN]', error);
+    return [];
+  }
+}
 
 export async function POST(request: NextRequest) {
   await initializeDatabase();
@@ -28,9 +60,12 @@ export async function POST(request: NextRequest) {
       return errorResponse('Company ID not found in session', 400);
     }
 
+    const jobEmbedding = await getEmbedding(value.description);
+
     const job = await Job.create({
       title: value.title,
       description: value.description,
+      embedding: jobEmbedding,
       requiredSkills: value.requiredSkills,
       salaryRange: value.salaryRange || '',
       location: value.location,

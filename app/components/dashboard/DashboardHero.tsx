@@ -1,9 +1,10 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import type { DashboardAction } from './types';
 
 interface DashboardHeroProps {
   title: string;
-  description: string;
+  description: string | ReactNode;
   action?: DashboardAction;
 }
 
@@ -14,27 +15,36 @@ export default function DashboardHero({
 }: DashboardHeroProps) {
   const ActionIcon = action?.icon;
 
-  const button = (
-    <span className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-[#082d78] px-5 text-[12px] font-bold uppercase text-white shadow-sm transition hover:bg-[#061f55] md:w-auto">
-      {ActionIcon && <ActionIcon className="h-5 w-5" />}
+  const buttonContent = (
+    <span className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#203f99] px-4 text-sm font-bold text-white shadow-sm shadow-blue-900/10 transition-all duration-200 hover:scale-[1.02] hover:bg-[#18317a] active:scale-[0.98] md:w-auto">
+      {ActionIcon && <ActionIcon className="h-4 w-4" />}
       {action?.label}
     </span>
   );
 
   return (
-    <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-      <div>
-        <h1 className="text-[32px] font-bold leading-tight text-[#00143f]">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="min-w-0">
+        <h1 className="text-2xl font-extrabold tracking-tight text-slate-700 md:text-3xl">
           {title}
         </h1>
-        <p className="mt-1 text-[14px] text-[#25385f]">{description}</p>
+        <p className="mt-1.5 text-sm font-medium text-slate-600">
+          {description}
+        </p>
       </div>
-      {action &&
-        (action.href ? (
-          <Link href={action.href}>{button}</Link>
-        ) : (
-          <button type="button">{button}</button>
-        ))}
+      {action && (
+        <div className="shrink-0">
+          {action.href ? (
+            <Link href={action.href} className="block no-underline">
+              {buttonContent}
+            </Link>
+          ) : (
+            <button type="button" className="w-full md:w-auto block focus:outline-none">
+              {buttonContent}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

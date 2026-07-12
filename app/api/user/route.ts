@@ -3,6 +3,11 @@ import { initializeDatabase } from '@/lib/initializeDatabase';
 import User from '@/database/User.model';
 import { successResponse, errorResponse, validationErrorResponse } from '@/lib/apiResponse';
 import { validateCreateUser } from '@/lib/validations/userValidation';
+import {
+  generateOTP,
+  storeOTP,
+  sendOTPEmail,
+} from '@/lib/mail';
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,20 +41,19 @@ export async function POST(request: NextRequest) {
 
     const user = await User.create(value);
 
-    const userResponse = {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      phone: user.phone,
-      skills: user.skills,
-      education: user.education,
-      experience: user.experience,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+    const otp = generateOTP();
+    await storeOTP(user.email, otp);
+    await sendOTPEmail(user.email, user.name, otp);
 
-    return successResponse(userResponse, 'User created successfully', 201);
+    return successResponse(
+      {
+        userId: user._id,
+        email: user.email,
+        name: user.name,
+      },
+      'User created successfully. Please verify your email with the OTP sent to your inbox.',
+      201
+    );
   } catch (error) {
     console.error('[USER_CREATE_ERROR]', error);
     const message = error instanceof Error ? error.message : 'Failed to create user';

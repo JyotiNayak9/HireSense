@@ -5,13 +5,14 @@ import {
   HiOutlineCalendar,
   HiOutlineChartBar,
   HiOutlineClipboardList,
+  HiOutlineCog,
   HiOutlineAdjustments,
   HiOutlineUsers,
   HiOutlineViewGrid,
   HiOutlineDatabase,
 } from 'react-icons/hi';
 import CompanyJobForm from '@/app/components/dashboard/CompanyJobForm';
-import DashboardFooter from '@/app/components/dashboard/DashboardFooter';
+// import DashboardFooter from '@/app/components/dashboard/DashboardFooter';
 import DashboardHero from '@/app/components/dashboard/DashboardHero';
 import DashboardShell from '@/app/components/dashboard/DashboardShell';
 import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
@@ -33,7 +34,7 @@ const sidebarItems: DashboardNavItem[] = [
   { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/company' },
   { label: 'Post Job', icon: HiOutlineClipboardList, href: '/dashboard/company/post-job' },
   { label: 'My Jobs', icon: HiOutlineDatabase, href: '/dashboard/company/my-jobs' },
-
+  { label: 'Company Profile', icon: HiOutlineCog, href: '/dashboard/company/profile' },
 ];
 
 const stats: DashboardStat[] = [
@@ -116,9 +117,14 @@ async function CompanyPostJobContent() {
           }}
         />
       }
-      topbar={<DashboardTopbar />}
-      footer={
-        <DashboardFooter copyright="(c) 2026 HireSense . All rights reserved." />
+      topbar={
+        <DashboardTopbar 
+          profile={{
+            name: company.companyName,
+            subtitle: 'Company Account',
+            initials: company.companyName.slice(0, 2).toUpperCase(),
+          }} 
+        />
       }
     >
       <DashboardHero
@@ -127,7 +133,8 @@ async function CompanyPostJobContent() {
         action={{ label: 'Back to dashboard', href: '/dashboard/company' }}
       />
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+      {/* Optimized Layout Ratio: 2.5fr to 1.5fr for balanced alignment */}
+      <div className="mt-10 grid gap-8 lg:grid-cols-[3.5fr_1.5fr] items-start">
         <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
           <CompanyJobForm />
         </div>
@@ -143,7 +150,7 @@ async function CompanyPostJobContent() {
     </DashboardShell>
   );
 }
-
+ 
 function CompanyPostJobSkeleton() {
   return (
     <DashboardShell
@@ -159,9 +166,7 @@ function CompanyPostJobSkeleton() {
         />
       }
       topbar={<DashboardTopbar />}
-      footer={
-        <DashboardFooter copyright="(c) 2026 HireSense . All rights reserved." />
-      }
+     
     >
       <div className="space-y-6">
         <div className="h-14 rounded-2xl bg-slate-200" />

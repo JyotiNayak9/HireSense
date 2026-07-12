@@ -39,6 +39,8 @@ export default function LoginPage() {
     resolver: yupResolver(schema) as Resolver<FormData>,
     defaultValues: {
       accountType: "candidate",
+      email: "",
+      password: "",
     },
   });
 
@@ -157,7 +159,7 @@ export default function LoginPage() {
             </form>
 
             <p className="text-center text-[15px] text-slate-600 mt-5">
-              Don&apos;t have an account yet?{" "}
+              Dont have an account yet?{" "}
               <Link
                 href="/register"
                 className="text-navy font-semibold hover:opacity-70 transition-opacity"

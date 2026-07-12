@@ -9,6 +9,7 @@ export interface AuthSession {
   accountType: AccountType;
   email: string;
   role: string;
+  name?: string;
   companyId?: string;
   userId?: string;
 }
@@ -44,6 +45,7 @@ export async function getAuthSession(): Promise<AuthSession | null> {
     }
 
     return {
+      name: payload.name ? String(payload.name) : undefined,
       accountId: String(payload.accountId),
       accountType: payload.accountType,
       email: String(payload.email),

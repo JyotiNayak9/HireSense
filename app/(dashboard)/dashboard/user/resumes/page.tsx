@@ -7,7 +7,7 @@ import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
 import DashboardTopbar from '@/app/components/dashboard/DashboardTopbar';
 import DashboardFooter from '@/app/components/dashboard/DashboardFooter';
 import type { DashboardNavItem } from '@/app/components/dashboard/types';
-import { HiOutlineBriefcase, HiOutlineTrash, HiOutlineClipboardList, HiOutlineViewGrid } from 'react-icons/hi';
+import { HiOutlineBriefcase, HiOutlineTrash, HiOutlineClipboardList, HiOutlineViewGrid, HiOutlineChartBar } from 'react-icons/hi';
 import { requireCandidateSession } from '@/lib/auth';
 import { initializeDatabase } from '@/lib/initializeDatabase';
 import User from '@/database/User.model';
@@ -81,6 +81,8 @@ export default function ResumesPage() {
     { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/user' },
     { label: 'Job Openings', icon: HiOutlineBriefcase, href: '/dashboard/user/job-openings' },
     { label: 'Resumes', icon: HiOutlineClipboardList, href: '/dashboard/user/resumes' },
+      { label: 'Applications', icon: HiOutlineChartBar, href: '/dashboard/user/applications' },
+    
   ];
     // const session = await requireCandidateSession();
     // await initializeDatabase();
@@ -131,6 +133,7 @@ export default function ResumesPage() {
                 <div className="flex flex-col">
                   <div className="flex items-center gap-4">
                     <a href={`/api/resume/serve/${r._id}`} target="_blank" rel="noreferrer" className="text-navy underline">View Resume</a>
+                    <a href={`/api/resume/serve/${r._id}?download=1`} className="text-sm text-slate-500 hover:text-slate-700 underline">Download</a>
                     <span className="text-sm text-slate-500">{new Date(r.createdAt).toLocaleString()}</span>
                   </div>
                   <div className="text-sm text-slate-700 mt-1">{r.originalName ?? 'Untitled'}</div>

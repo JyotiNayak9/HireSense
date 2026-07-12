@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import { redirect, notFound } from 'next/navigation';
 import { HiOutlineBriefcase, HiOutlineCalendar, HiOutlineChartBar, HiOutlineClipboardList, HiOutlineAdjustments, HiOutlineViewGrid, HiOutlineCurrencyDollar, HiOutlineClock } from 'react-icons/hi';
-import DashboardFooter from '@/app/components/dashboard/DashboardFooter';
 import DashboardHero from '@/app/components/dashboard/DashboardHero';
 import DashboardShell from '@/app/components/dashboard/DashboardShell';
 import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
@@ -19,19 +18,19 @@ const sidebarItems: DashboardNavItem[] = [
   { label: 'Dashboard', icon: HiOutlineViewGrid,href: '/dashboard/user' },
   { label: 'Job Openings', icon: HiOutlineBriefcase, href: '/dashboard/user/job-openings' },
   { label: 'Resumes', icon: HiOutlineClipboardList, href: '/dashboard/user/resumes' },
-
+  { label: 'Applications', icon: HiOutlineChartBar, href: '/dashboard/user/applications' },
 ];
 
-export default async function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense fallback={<JobDetailsSkeleton />}>
-      <JobDetailsContent id={id} />
+      <JobDetailsContent params={params} />
     </Suspense>
   );
 }
 
-async function JobDetailsContent({ id }: { id: string }) {
+async function JobDetailsContent({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await requireCandidateSession();
   await initializeDatabase();
 
@@ -71,13 +70,21 @@ async function JobDetailsContent({ id }: { id: string }) {
         />
       }
       topbar={<DashboardTopbar />}
-      footer={
-        <DashboardFooter copyright="(c) 2026 HireSense . All rights reserved." />
-      }
+
     >
       <DashboardHero
         title={job.title}
-        description={`${company?.companyName || 'Unknown Company'} • ${job.location}`}
+        description={
+          <>
+            <Link
+              href={`/dashboard/user/companies/${company?._id || job.companyId}`}
+              className="font-semibold text-[#203f99] hover:text-[#18317a] hover:underline"
+            >
+              {company?.companyName || 'Unknown Company'}
+            </Link>
+            &nbsp;&bull; {job.location}
+          </>
+        }
       />
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_320px]">
@@ -179,9 +186,7 @@ function JobDetailsSkeleton() {
         />
       }
       topbar={<DashboardTopbar />}
-      footer={
-        <DashboardFooter copyright="(c) 2026 HireSense . All rights reserved." />
-      }
+
     >
       <div className="animate-pulse">
         <div className="h-9 w-64 rounded bg-slate-200" />

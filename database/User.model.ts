@@ -11,6 +11,7 @@ export interface IUser extends Document {
   education: string;
   experience: string;
   resumeId: mongoose.Schema.Types.ObjectId | null;
+  isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -73,6 +74,10 @@ const userSchema = new Schema<IUser>(
       type: Schema.Types.ObjectId,
       ref: 'Resume',
       default: null,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   {

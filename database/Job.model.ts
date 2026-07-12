@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IJob extends Document {
   title: string;
   description: string;
+  embedding?: number[];
   requiredSkills: string[];
   salaryRange?: string;
   jobType: string;
@@ -28,6 +29,10 @@ const jobSchema = new Schema<IJob>(
       trim: true,
       minlength: [20, 'Job description must be at least 20 characters long'],
       maxlength: [3000, 'Job description cannot exceed 3000 characters'],
+    },
+    embedding: {
+      type: [Number],
+      default: [],
     },
     requiredSkills: {
       type: [String],

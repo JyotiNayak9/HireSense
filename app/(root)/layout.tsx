@@ -4,6 +4,8 @@ import "../globals.css";
 import Navbar from "../components/layout/navbar";
 import Footer from "../components/layout/footer";
 import ToastProvider from "../components/layout/ToastProvider";
+import { AuthModalProvider } from "../context/AuthModalContext";
+import AuthModals from "../components/auth/AuthModals";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -12,9 +14,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "HireSense",
+  title: "HireSense | Precision AI Recruiting Platform",
   description:
-    "The future of precision hiring. HireSense uses advanced AI to rank candidates with frightening accuracy.",
+    "HireSense uses advanced AI semantic analysis to rank candidate profiles with true precision, saving hundreds of screening hours.",
 };
 
 export default function RootLayout({
@@ -23,14 +25,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="antialiased">
-        <Navbar/>
-        <ToastProvider/>
-        {children}
-        <Footer/>
-        </body>
-        
+    <html lang="en" className={`${inter.variable} scroll-smooth`}>
+      <body className="font-sans antialiased bg-white text-slate-950 min-h-screen flex flex-col">
+        <AuthModalProvider>
+          <Navbar />
+          <ToastProvider />
+          <main className="flex-grow">
+            {children}
+          </main>
+          <Footer />
+          <AuthModals />
+        </AuthModalProvider>
+      </body>
     </html>
   );
 }

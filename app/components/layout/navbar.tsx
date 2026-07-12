@@ -4,92 +4,123 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "../../../public/hiresense-logo.png";
+import { useAuthModal } from "@/app/context/AuthModalContext";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { openLogin, openRegister } = useAuthModal();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const onScroll = () => setScrolled(window.scrollY > 15);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white border-b border-slate-100 ${
-        scrolled ? "shadow-sm" : ""
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled 
+          ? "bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm" 
+          : "bg-transparent border-b border-transparent"
       }`}
     >
-      <nav className="max-w-7xl mx-auto px-6 lg:px-10 h-14 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <Image src={logo} alt="HireSense Logo" width={30} height={30} />
-          <span className="font-bold text-[15px] text-navy tracking-tight">
+      <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        {/* Logo Configuration */}
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/60 group-hover:border-[#203f99]/30 transition-all duration-200">
+            <Image 
+              src={logo} 
+              alt="HireSense Logo" 
+              width={30} 
+              height={30} 
+              className="object-contain group-hover:scale-105 transition-transform" 
+            />
+          </div>
+          <span className=" font-bold text-lg text-navy tracking-tight group-hover:text-[#203f99] transition-colors">
             HireSense
           </span>
         </Link>
 
-        {/* Desktop Links */}
+        {/* Desktop Central Navigation Links */}
         <div className="hidden md:flex items-center gap-8">
           {[
-            // { label: "Features", href: "/features" },
             { label: "About Us", href: "/features" },
+            { label: "Contact Us", href: "/contact" },
           ].map((item) => (
             <Link
               key={item.label}
               href={item.href}
-              className="text-[15px] font-medium text-slate-700 hover:text-slate-900 transition-colors"
+              className="text-sm font-bold text-slate-700 hover:text-[#203f99] transition-colors uppercase tracking-wider relative group"
             >
               {item.label}
             </Link>
           ))}
         </div>
 
-        {/* Right CTAs */}
+        {/* Desktop Call-to-Actions */}
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-[15px] font-medium text-slate-700 hover:text-slate-900 transition-colors px-3 py-1.5"
+          <button
+            onClick={openLogin}
+            className="text-sm font-bold text-slate-700 hover:text-[#203f99] transition-colors px-4 py-2 uppercase tracking-wider"
           >
             Log in
-          </Link>
-          <Link
-            href="/register"
-            className="text-[13px] font-semibold px-4 py-2 rounded-lg bg-navy text-white hover:bg-navy-mid transition-colors"
+          </button>
+          <button
+            onClick={openRegister}
+            className="text-sm font-bold px-4 h-11 inline-flex items-center justify-center rounded-xl hover:bg-[#203f99] text-white bg-[#18317a] transition-all shadow-sm active:scale-[0.99] uppercase tracking-wider"
           >
             Get Started
-          </Link>
+          </button>
         </div>
 
-        {/* Mobile hamburger */}
+        {/* Mobile Hamburger Trigger Toggle */}
         <button
-          className="md:hidden p-1.5 rounded-md hover:bg-slate-100 transition-colors"
+          className="md:hidden p-2 rounded-xl bg-slate-50 border border-slate-200/60 text-slate-700 hover:bg-slate-100 transition-colors"
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle Menu"
         >
-          <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5 text-slate-700">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-5 h-5" strokeWidth="2.5" strokeLinecap="round">
             {menuOpen ? (
-              <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              <path d="M6 18L18 6M6 6l12 12" />
             ) : (
-              <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              <path d="M4 6h16M4 12h16M4 18h16" />
             )}
           </svg>
         </button>
       </nav>
 
+      {/* Mobile Drawer Slideout Menu Panel */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-slate-100 px-6 py-4 flex flex-col gap-3">
+        <div className="md:hidden bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-6 flex flex-col gap-4 shadow-xl animate-fade-in">
           {[
-            { label: "Features", href: "/features" },
-            { label: "About Us", href: "/about" },
+            { label: "About Us", href: "/features" },
+            { label: "Contact Us", href: "/contact" },
           ].map((item) => (
-            <Link key={item.label} href={item.href} className="text-sm font-medium text-slate-600 py-1" onClick={() => setMenuOpen(false)}>
+            <Link 
+              key={item.label} 
+              href={item.href} 
+              className="text-xs font-bold text-slate-600 py-2 uppercase tracking-wider hover:text-[#203f99] transition-colors" 
+              onClick={() => setMenuOpen(false)}
+            >
               {item.label}
             </Link>
           ))}
           <hr className="border-slate-100 my-1" />
-          <Link href="/login" className="text-sm text-slate-600">Log in</Link>
-          <Link href="/register" className="text-sm font-semibold px-4 py-2.5 rounded-lg bg-navy text-white text-center">Get Started</Link>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => { setMenuOpen(false); openLogin(); }}
+              className="text-xs font-bold text-slate-600 py-3 text-center uppercase tracking-wider hover:bg-slate-50 rounded-xl transition-colors"
+            >
+              Log in
+            </button>
+            <button
+              onClick={() => { setMenuOpen(false); openRegister(); }}
+              className="text-xs font-bold px-4 py-3.5 rounded-xl bg-[#203f99] text-white text-center uppercase tracking-wider font-sans"
+            >
+              Get Started
+            </button>
+          </div>
         </div>
       )}
     </header>

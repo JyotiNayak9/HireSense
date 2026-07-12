@@ -47,14 +47,31 @@ export async function GET(
       return errorResponse('Failed to fetch file', 502);
     }
 
-    const contentType = fetched.headers.get('content-type') || 'application/octet-stream';
     const arrayBuffer = await fetched.arrayBuffer();
+
+    const filename = resume.originalName ?? 'resume.pdf';
+    const ext = filename.split('.').pop()?.toLowerCase() ?? 'pdf';
+    const mimeMap: Record<string, string> = {
+      pdf: 'application/pdf',
+      doc: 'application/msword',
+      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      png: 'image/png',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      txt: 'text/plain',
+      rtf: 'application/rtf',
+    };
+    const contentType = mimeMap[ext] || fetched.headers.get('content-type') || 'application/octet-stream';
+    const download = new URL(request.url).searchParams.get('download') === '1';
+    const disposition = download
+      ? `attachment; filename="${filename}"`
+      : 'inline';
 
     return new Response(Buffer.from(arrayBuffer), {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        'Content-Disposition': `inline; filename="${resume.originalName ?? 'resume'}"`,
+        'Content-Disposition': disposition,
       },
     });
   } catch (err) {

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { InputLabel, TextInputComponent, TextAreaInputComponent, TagInputComponent, SubmitButton } from '@/app/components/form/input-components';
 
@@ -36,6 +37,7 @@ export default function ApplicationForm({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  const router = useRouter();
   const { control, handleSubmit, reset } = useForm<ApplicationFormValues>({
     defaultValues: {
       name: defaultName,
@@ -110,10 +112,11 @@ export default function ApplicationForm({
         return;
       }
 
-      setMessage('Application submitted successfully.');
+      setMessage('Application submitted successfully. Redirecting to history...');
       reset({ name: values.name, email: values.email, phone: values.phone, skills: [], experience: '' });
       setSelectedResume(null);
       setFile(null);
+      router.push('/dashboard/user/applications');
     } catch (error: any) {
       setMessage(error?.message || 'Submission failed');
     } finally {

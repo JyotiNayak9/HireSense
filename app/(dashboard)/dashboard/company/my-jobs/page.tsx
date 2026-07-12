@@ -2,45 +2,36 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import {
   HiOutlineBriefcase,
-  HiOutlineCalendar,
-  HiOutlineChartBar,
   HiOutlineClipboardList,
-  HiOutlineAdjustments,
-  HiOutlineUsers,
+  HiOutlineCog,
   HiOutlineViewGrid,
   HiOutlineDatabase,
 } from 'react-icons/hi';
-import DashboardFooter from '@/app/components/dashboard/DashboardFooter';
 import DashboardHero from '@/app/components/dashboard/DashboardHero';
 import DashboardShell from '@/app/components/dashboard/DashboardShell';
 import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
 import DashboardTopbar from '@/app/components/dashboard/DashboardTopbar';
 import JobPostingsPanel from '@/app/components/dashboard/JobPostingsPanel';
 import type {
-  DashboardActivity,
   DashboardJobItem,
   DashboardNavItem,
-  DashboardStat,
 } from '@/app/components/dashboard/types';
 import { requireCompanySession } from '@/lib/auth';
 import { initializeDatabase } from '@/lib/initializeDatabase';
 import Company from '@/database/Company.model';
 import Job from '@/database/Job.model';
-import mongoose from 'mongoose';
 
 const sidebarItems: DashboardNavItem[] = [
   { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/company' },
   { label: 'Post Job', icon: HiOutlineClipboardList, href: '/dashboard/company/post-job' },
   { label: 'My Jobs', icon: HiOutlineDatabase, href: '/dashboard/company/my-jobs' },
-
+  { label: 'Company Profile', icon: HiOutlineCog, href: '/dashboard/company/profile' },
 ];
-
-
 
 const mapJobs = (jobs: Array<any>): DashboardJobItem[] =>
   jobs.map((job) => ({
     id: String(job._id),
-    href: `/dashboard/company/my-jobs/${job._id}/applicants`,
+    href: `/dashboard/company/my-jobs/${job._id}`,
     title: job.title,
     meta: `${job.location} • ${job.jobType}`,
     posted: `Posted ${new Date(job.createdAt).toLocaleDateString()}`,
@@ -79,21 +70,26 @@ async function CompanyMyJobsContent() {
     .sort({ createdAt: -1 })
     .lean();
 
+  const companyProfile = {
+    name: company.companyName,
+    subtitle: 'Company Account',
+    initials: company.companyName.slice(0, 2).toUpperCase(),
+  };
+
   return (
     <DashboardShell
       sidebar={
         <DashboardSidebar
           title={company.companyName}
           items={sidebarItems}
-          profile={{
-            name: company.companyName,
-            subtitle: 'Company Account',
-            initials: company.companyName.slice(0, 2).toUpperCase(),
-          }}
+          profile={companyProfile}
         />
       }
-      topbar={<DashboardTopbar />}
-    
+      topbar={
+        <DashboardTopbar 
+          profile={companyProfile} 
+        />
+      }
     >
       <DashboardHero
         title="My Jobs"
@@ -127,7 +123,6 @@ function CompanyMyJobsSkeleton() {
         />
       }
       topbar={<DashboardTopbar />}
-   
     >
       <div className="space-y-6">
         <div className="h-14 rounded-2xl bg-slate-200" />

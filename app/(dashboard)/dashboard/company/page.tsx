@@ -5,6 +5,7 @@ import {
   HiOutlineChartBar,
   HiOutlineClipboardList,
   HiOutlineCode,
+  HiOutlineCog,
   HiOutlineDatabase,
   HiOutlinePlus,
   HiOutlineUsers,
@@ -13,7 +14,7 @@ import {
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import ActivityLogPanel from '@/app/components/dashboard/ActivityLogPanel';
-import DashboardFooter from '@/app/components/dashboard/DashboardFooter';
+// import DashboardFooter from '@/app/components/dashboard/DashboardFooter';
 import DashboardHero from '@/app/components/dashboard/DashboardHero';
 import DashboardShell from '@/app/components/dashboard/DashboardShell';
 import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
@@ -36,13 +37,8 @@ const sidebarItems: DashboardNavItem[] = [
   { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/company' },
   { label: 'Post Job', icon: HiOutlineClipboardList, href: '/dashboard/company/post-job' },
   { label: 'My Jobs', icon: HiOutlineDatabase, href: '/dashboard/company/my-jobs' },
-
+  { label: 'Company Profile', icon: HiOutlineCog, href: '/dashboard/company/profile' },
 ];
-
-
-const jobs: DashboardJobItem[] = [];
-
-
 
 export default async function CompanyDashboardPage() {
   return (
@@ -71,8 +67,12 @@ async function CompanyDashboardContent() {
       location: string;
     }>();
 
+  if (!company) {
+    redirect('/login');
+  }
+
   const companyJobs = await Job.find({
-    companyId:companyId as any,
+    companyId: companyId as any,
   })
     .sort({ createdAt: -1 })
     .limit(6)
@@ -80,19 +80,30 @@ async function CompanyDashboardContent() {
 
   const totalJobsCount = await Job.countDocuments({ companyId: companyId as any });
 
+  // Calibrated layout statistics matching text color definitions
   const stats: DashboardStat[] = [
     {
-      label: 'Total Jobs',
+      label: 'Active Jobs',
       value: String(totalJobsCount),
-      detail: '',
+      detail: 'Live job listings',
       icon: HiOutlineBriefcase,
-      tone: 'text-emerald-600',
+      tone: 'text-[#203f99]',
+    },
+    {
+      label: 'Total Candidates',
+      value: '0',
+      detail: 'Across all pipelines',
+      icon: HiOutlineUsers,
+      tone: 'text-slate-600',
+    },
+    {
+      label: 'Interviews',
+      value: '0',
+      detail: 'Scheduled this week',
+      icon: HiOutlineCalendar,
+      tone: 'text-slate-600',
     },
   ];
-
-  if (!company) {
-    redirect('/login');
-  }
 
   const dashboardJobs: DashboardJobItem[] = companyJobs.map((job) => ({
     title: job.title,
@@ -100,8 +111,10 @@ async function CompanyDashboardContent() {
     posted: `Posted ${new Date(job.createdAt).toLocaleDateString()}`,
     match: job.salaryRange || 'Salary not listed',
     icon: HiOutlineBriefcase,
-    tone: job.salaryRange ? 'bg-[#1f3f99] text-white' : 'bg-blue-50 text-[#1f3f99]',
-    dot: 'bg-[#1f3f99]',
+    tone: job.salaryRange ? 'bg-[#203f99] text-white' : 'bg-slate-100 text-slate-700',
+    dot: 'bg-[#203f99]',
+    id: job._id.toString(),
+    href: `/dashboard/company/my-jobs/${job._id.toString()}`,
   }));
 
   return (
@@ -110,6 +123,10 @@ async function CompanyDashboardContent() {
         <DashboardSidebar
           title={company.companyName}
           items={sidebarItems}
+        />
+      }
+      topbar={
+        <DashboardTopbar
           profile={{
             name: company.companyName,
             subtitle: 'Company Account',
@@ -117,26 +134,29 @@ async function CompanyDashboardContent() {
           }}
         />
       }
-      topbar={
-        <DashboardTopbar/>
-      }
-      footer={
-        <DashboardFooter
-          copyright="(c) 2026 HireSense . All rights reserved."
-
-        />
-      }
+      // footer={
+      //   <DashboardFooter
+      //     copyright="(c) 2026 HireSense . All rights reserved."
+      //   />
+      // }
     >
-      <DashboardHero
-        title={`Welcome, ${company.companyName}`}
-        description="Here's what's happening with your hiring pipeline today."
-        action={{ label: 'Create New Job', icon: HiOutlinePlus, href: '/dashboard/company/post-job' }}
-      />
+      <div className="space-y-8">
+        {/* Main Dashboard Hero */}
+        <DashboardHero
+          title={`Welcome, ${company.companyName}`}
+          description="Here's what's happening with your hiring pipeline today."
+          action={{ label: 'Create New Job', icon: HiOutlinePlus, href: '/dashboard/company/post-job' }}
+        />
 
-      <DashboardStatGrid stats={stats} />
+        {/* Scaled Statistics Grid Section */}
+        <div>
+          <DashboardStatGrid stats={stats} />
+        </div>
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_292px]">
-        <JobPostingsPanel title="Active Job Postings" jobs={dashboardJobs} matchLabel="Salary" />
+        {/* Active Workspace List Panel */}
+        <div>
+          <JobPostingsPanel title="Active Job Postings" jobs={dashboardJobs} matchLabel="Salary" />
+        </div>
       </div>
     </DashboardShell>
   );
@@ -147,61 +167,50 @@ function CompanyDashboardSkeleton() {
     <DashboardShell
       sidebar={
         <DashboardSidebar
-          title="Hiring Hub"
+          title="Recruitment"
           items={sidebarItems}
-          profile={{
-            name: 'Loading',
-            subtitle: 'Company Account',
-            initials: 'HS',
-          }}
         />
       }
       topbar={
-        <DashboardTopbar/>
+        <DashboardTopbar />
       }
-      footer={
-        <DashboardFooter
-          copyright="(c) 2026 HireSense . All rights reserved."
-          links={['Privacy Policy', 'Terms of Service', 'Help Center']}
-        />
-      }
+      // footer={
+      //   <DashboardFooter
+      //     copyright="(c) 2026 HireSense . All rights reserved."
+      //     links={['Privacy Policy', 'Terms of Service', 'Help Center']}
+      //   />
+      // }
     >
-      <div className="animate-pulse">
+      {/* Consistent color matching skeleton structure */}
+      <div className="animate-pulse space-y-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div>
-            <div className="h-9 w-72 rounded bg-slate-200" />
-            <div className="mt-3 h-4 w-96 max-w-full rounded bg-slate-200" />
+            <div className="h-8 w-64 rounded-xl bg-slate-200" />
+            <div className="mt-3 h-4 w-80 rounded-xl bg-slate-200" />
           </div>
-          <div className="h-12 w-full rounded-md bg-slate-200 md:w-44" />
+          <div className="h-11 w-full rounded-xl bg-slate-200 md:w-40" />
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
+        {/* Stat Cards Skeleton Loader */}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((item) => (
             <div
               key={item}
-              className="h-31.5 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+              className="h-28 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
             >
-              <div className="h-3 w-24 rounded bg-slate-200" />
-              <div className="mt-7 h-8 w-20 rounded bg-slate-200" />
+              <div className="h-3 w-20 rounded bg-slate-200" />
+              <div className="mt-5 h-7 w-14 rounded bg-slate-200" />
             </div>
           ))}
         </div>
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_292px]">
-          <div>
-            <div className="h-7 w-56 rounded bg-slate-200" />
-            <div className="mt-5 space-y-4">
-              {[0, 1, 2].map((item) => (
-                <div
-                  key={item}
-                  className="h-20.5 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-                />
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="h-7 w-44 rounded bg-slate-200" />
-            <div className="mt-5 h-82.5 rounded-lg border border-slate-200 bg-white shadow-sm" />
+        {/* Content Box Skeleton Loader */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 h-64 shadow-sm">
+          <div className="h-5 w-44 rounded bg-slate-200" />
+          <div className="mt-6 space-y-4">
+            {[0, 1].map((item) => (
+              <div key={item} className="h-14 rounded-xl bg-slate-100" />
+            ))}
           </div>
         </div>
       </div>
