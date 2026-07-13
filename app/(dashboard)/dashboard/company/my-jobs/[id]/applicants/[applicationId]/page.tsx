@@ -5,7 +5,8 @@ import DashboardShell from '@/app/components/dashboard/DashboardShell';
 import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
 import DashboardTopbar from '@/app/components/dashboard/DashboardTopbar';
 import DashboardHero from '@/app/components/dashboard/DashboardHero';
-import { 
+import UpdateApplicationStatus from '@/app/components/dashboard/UpdateApplicationStatus';
+import {
   HiOutlineViewGrid, 
   HiOutlineClipboardList, 
   HiOutlineCog,
@@ -19,7 +20,7 @@ import {
   HiOutlineDownload,
   HiOutlineEye,
   HiOutlineLocationMarker,
-  HiOutlineCalendar
+  HiOutlineCalendar,
 } from 'react-icons/hi';
 import type { DashboardNavItem } from '@/app/components/dashboard/types';
 import { requireCompanySession } from '@/lib/auth';
@@ -104,9 +105,10 @@ async function ApplicantDetailContent({ params }: ApplicantDetailPageProps) {
             Back to Applicants
           </Link>
           
-          <span className="inline-flex items-center rounded-xl bg-indigo-50 border border-indigo-100 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-indigo-700">
-            {application.status || 'Active'}
-          </span>
+          <UpdateApplicationStatus
+            applicationId={String(application._id)}
+            currentStatus={application.status || 'pending'}
+          />
         </div>
 
         {/* Master Matrix Breakdown Layout */}

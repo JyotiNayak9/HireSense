@@ -4,6 +4,13 @@ import Job from '@/database/Job.model';
 import RankingResult from '@/database/RankingResult.model';
 import { initializeDatabase } from '@/lib/initializeDatabase';
 
+const STATUS_STYLES: Record<string, string> = {
+  pending: 'bg-amber-50 text-amber-700 border-amber-200',
+  reviewed: 'bg-blue-50 text-blue-700 border-blue-200',
+  shortlisted: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  rejected: 'bg-rose-50 text-rose-700 border-rose-200',
+};
+
 type Props = { userId?: string };
 
 export default async function ApplicationsInner({ userId }: Props) {
@@ -60,7 +67,9 @@ export default async function ApplicationsInner({ userId }: Props) {
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div>
                       <p className="text-xs uppercase tracking-wide text-slate-500">Status</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-900">{application.status}</p>
+                      <span className={`mt-1 inline-flex rounded-lg border px-2.5 py-1 text-xs font-bold uppercase tracking-wider ${STATUS_STYLES[application.status] || 'bg-slate-50 text-slate-700 border-slate-200'}`}>
+                        {application.status}
+                      </span>
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-wide text-slate-500">Applied</p>

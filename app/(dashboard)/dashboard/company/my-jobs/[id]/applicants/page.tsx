@@ -22,6 +22,7 @@ type ApplicantApplication = {
   phone: string;
   experience: string;
   skills?: string[];
+  status?: string;
   matchPercentage?: number;
   matchedKeywords?: string[];
   missingKeywords?: string[];
@@ -147,6 +148,16 @@ async function ApplicantsContent({ params }: ApplicantsPageProps) {
                           #{displayRank}
                         </span>
                         <div className="text-lg font-bold text-slate-900 tracking-tight">{app.name}</div>
+                        {app.status && (
+                          <span className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                            app.status === 'shortlisted' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                            app.status === 'rejected' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                            app.status === 'reviewed' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                            'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}>
+                            {app.status}
+                          </span>
+                        )}
                       </div>
 
                       {/* Contact Channels */}

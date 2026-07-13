@@ -20,6 +20,8 @@ import DashboardShell from '@/app/components/dashboard/DashboardShell';
 import DashboardSidebar from '@/app/components/dashboard/DashboardSidebar';
 import DashboardStatGrid from '@/app/components/dashboard/DashboardStatGrid';
 import DashboardTopbar from '@/app/components/dashboard/DashboardTopbar';
+import ApplicantsBarChart from '@/app/components/dashboard/ApplicantsBarChart';
+import StatusPieChart from '@/app/components/dashboard/StatusPieChart';
 import JobPostingsPanel from '@/app/components/dashboard/JobPostingsPanel';
 import type {
   DashboardActivity,
@@ -83,6 +85,36 @@ async function CompanyDashboardContent() {
   const totalCandidates = companyJobIds.length > 0
     ? (await Application.distinct('userId', { jobId: { $in: companyJobIds } })).length
     : 0;
+
+  const allJobs = await Job.find({ companyId: companyId as any })
+    .select('title')
+    .sort({ createdAt: -1 })
+    .lean<{ _id: unknown; title: string }[]>();
+
+  const appCounts = companyJobIds.length > 0
+    ? await Application.aggregate<{ _id: unknown; count: number }>([
+        { $match: { jobId: { $in: companyJobIds } } },
+        { $group: { _id: '$jobId', count: { $sum: 1 } } },
+      ])
+    : [];
+
+  const countMap = new Map(appCounts.map(c => [String(c._id), c.count]));
+  const chartData = allJobs.map(j => ({
+    title: j.title.length > 20 ? j.title.slice(0, 20) + '...' : j.title,
+    applicants: countMap.get(String(j._id)) ?? 0,
+  }));
+
+  const statusCounts = companyJobIds.length > 0
+    ? await Application.aggregate<{ _id: string; count: number }>([
+        { $match: { jobId: { $in: companyJobIds } } },
+        { $group: { _id: '$status', count: { $sum: 1 } } },
+      ])
+    : [];
+
+  const statusChartData = statusCounts.map(s => ({
+    name: s._id,
+    value: s.count,
+  }));
 
   const stats: DashboardStat[] = [
     {
@@ -156,7 +188,14 @@ async function CompanyDashboardContent() {
           <DashboardStatGrid stats={stats} />
         </div>
 
-        {/* Active Workspace List Panel */}
+
+        
+
+        {/* Analytics Charts */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ApplicantsBarChart data={chartData} />
+          <StatusPieChart data={statusChartData} />
+        </div>
         <div>
           <JobPostingsPanel title="Active Job Postings" jobs={dashboardJobs} matchLabel="Salary" />
         </div>
