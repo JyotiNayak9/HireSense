@@ -31,7 +31,7 @@ import { requireCompanySession } from '@/lib/auth';
 import { initializeDatabase } from '@/lib/initializeDatabase';
 import Company from '@/database/Company.model';
 import Job from '@/database/Job.model';
-import mongoose from 'mongoose';
+import Application from '@/database/Application.model';
 
 const sidebarItems: DashboardNavItem[] = [
   { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/company' },
@@ -78,9 +78,12 @@ async function CompanyDashboardContent() {
     .limit(6)
     .lean();
 
-  const totalJobsCount = await Job.countDocuments({ companyId: companyId as any });
+  const companyJobIds = await Job.distinct('_id', { companyId: companyId as any });
+  const totalJobsCount = companyJobIds.length;
+  const totalCandidates = companyJobIds.length > 0
+    ? (await Application.distinct('userId', { jobId: { $in: companyJobIds } })).length
+    : 0;
 
-  // Calibrated layout statistics matching text color definitions
   const stats: DashboardStat[] = [
     {
       label: 'Active Jobs',
@@ -91,18 +94,18 @@ async function CompanyDashboardContent() {
     },
     {
       label: 'Total Candidates',
-      value: '0',
+      value: String(totalCandidates),
       detail: 'Across all pipelines',
       icon: HiOutlineUsers,
-      tone: 'text-slate-600',
+      tone: 'text-[#203f99]',
     },
-    {
-      label: 'Interviews',
-      value: '0',
-      detail: 'Scheduled this week',
-      icon: HiOutlineCalendar,
-      tone: 'text-slate-600',
-    },
+    // {
+    //   label: 'Interviews',
+    //   value: '0',
+    //   detail: 'Scheduled this week',
+    //   icon: HiOutlineCalendar,
+    //   tone: 'text-slate-600',
+    // },
   ];
 
   const dashboardJobs: DashboardJobItem[] = companyJobs.map((job) => ({

@@ -79,7 +79,12 @@ async function JobOpeningsContent() {
           }}
         />
       }
-      topbar={<DashboardTopbar />}
+      topbar={<DashboardTopbar
+         profile={{
+            name: user.name,
+            subtitle: 'User Account',
+            initials: user.name.slice(0, 2).toUpperCase(),
+          }} />}
     >
       <DashboardHero
         title="Job Openings"

@@ -28,7 +28,7 @@ export default function DashboardSidebar({
       {/* Navigation Links */}
       <nav className="flex flex-col gap-1.5">
         {items.map(({ label, icon: Icon, active, href }) => {
-          const className = `flex h-11 w-full items-center gap-3.5 rounded-xl px-4 text-left text-[17px] font-semibold transition-all duration-200 ease-out ${
+          const className = `flex h-11 w-full items-center gap-3.5 rounded-xl px-4 text-left text-[15px] font-semibold transition-all duration-200 ease-out ${
             active
               ? 'bg-[#203f99] text-white shadow-md shadow-blue-950/10 translate-x-1'
               : 'text-slate-700 hover:bg-slate-200 hover:text-slate-900 hover:translate-x-1'
@@ -38,7 +38,7 @@ export default function DashboardSidebar({
             <>
               <Icon 
                 className={`h-5 w-5 shrink-0 transition-colors ${
-                  active ? 'text-white' : 'text-slate-700 group-hover:text-[#203f99] text-[17px]'
+                  active ? 'text-white' : 'text-slate-700 group-hover:text-[#203f99] text-[15px]'
                 }`} 
               />
               <span>{label}</span>

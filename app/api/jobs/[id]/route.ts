@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server';
 import { initializeDatabase } from '@/lib/initializeDatabase';
 import Job from '@/database/Job.model';
+import Application from '@/database/Application.model';
+import RankingResult from '@/database/RankingResult.model';
 import { getAuthSession } from '@/lib/auth';
 import { successResponse, errorResponse, validationErrorResponse } from '@/lib/apiResponse';
 import { updateJobSchema } from '@/lib/validations/jobValidation';
@@ -124,6 +126,8 @@ export async function DELETE(
       return errorResponse('Unauthorized', 401);
     }
 
+    await RankingResult.deleteMany({ jobId: id });
+    await Application.deleteMany({ jobId: id });
     await Job.findByIdAndDelete(id);
 
     return successResponse(

@@ -1,5 +1,4 @@
 "use client"
-import { redirect } from 'next/navigation';
 
 import { useEffect, useState } from 'react';
 import DashboardShell from '@/app/components/dashboard/DashboardShell';
@@ -8,9 +7,6 @@ import DashboardTopbar from '@/app/components/dashboard/DashboardTopbar';
 import DashboardFooter from '@/app/components/dashboard/DashboardFooter';
 import type { DashboardNavItem } from '@/app/components/dashboard/types';
 import { HiOutlineBriefcase, HiOutlineTrash, HiOutlineClipboardList, HiOutlineViewGrid, HiOutlineChartBar } from 'react-icons/hi';
-import { requireCandidateSession } from '@/lib/auth';
-import { initializeDatabase } from '@/lib/initializeDatabase';
-import User from '@/database/User.model';
 
 type ResumeItem = {
   _id: string;
@@ -23,6 +19,8 @@ export default function ResumesPage() {
   const [resumes, setResumes] = useState<ResumeItem[]>([]);
   const [files, setFiles] = useState<FileList | null>(null);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   async function fetchResumes() {
     try {
@@ -59,9 +57,10 @@ export default function ResumesPage() {
     }
   }
 
-  async function deleteResume(id: string) {
-    if (!confirm('Delete this resume?')) return;
-    setLoading(true);
+  async function handleDelete() {
+    const id = confirmingId;
+    if (!id) return;
+    setDeletingId(id);
     try {
       const res = await fetch(`/api/resume/${id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -73,7 +72,8 @@ export default function ResumesPage() {
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      setDeletingId(null);
+      setConfirmingId(null);
     }
   }
 
@@ -81,23 +81,9 @@ export default function ResumesPage() {
     { label: 'Dashboard', icon: HiOutlineViewGrid, href: '/dashboard/user' },
     { label: 'Job Openings', icon: HiOutlineBriefcase, href: '/dashboard/user/job-openings' },
     { label: 'Resumes', icon: HiOutlineClipboardList, href: '/dashboard/user/resumes' },
-      { label: 'Applications', icon: HiOutlineChartBar, href: '/dashboard/user/applications' },
-    
+    { label: 'Applications', icon: HiOutlineChartBar, href: '/dashboard/user/applications' },
   ];
-    // const session = await requireCandidateSession();
-    // await initializeDatabase();
-  
-    // const user = await User.findById(session.userId ?? session.accountId)
-    //   .select('name email location')
-    //   .lean<{
-    //     name: string;
-    //     email: string;
-    //     location: string;
-    //   }>();
-  
-    // if (!user) {
-    //   redirect('/login');
-    // }
+
   return (
     <DashboardShell
       sidebar={
@@ -139,16 +125,47 @@ export default function ResumesPage() {
                   <div className="text-sm text-slate-700 mt-1">{r.originalName ?? 'Untitled'}</div>
                 </div>
                 <div>
-                  {/* <button onClick={() => deleteResume(r._id)} disabled={loading} className="text-red-600 hover:underline flex items-center gap-2">
+                  <button
+                    onClick={() => setConfirmingId(r._id)}
+                    disabled={loading}
+                    className="text-red-600 hover:underline flex items-center gap-2"
+                  >
                     <HiOutlineTrash />
                     <span>Delete</span>
-                  </button> */}
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {confirmingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-sm mx-4 rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-slate-900">Delete Resume</h3>
+            <p className="mt-2 text-sm text-slate-600">
+              Are you sure you want to delete this resume? This action cannot be undone.
+            </p>
+            <div className="mt-6 flex items-center gap-3 justify-end">
+              <button
+                onClick={() => setConfirmingId(null)}
+                disabled={deletingId !== null}
+                className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deletingId !== null}
+                className="rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-rose-700 transition-colors disabled:opacity-50"
+              >
+                {deletingId !== null ? 'Deleting...' : 'Yes, Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardShell>
   )
 }

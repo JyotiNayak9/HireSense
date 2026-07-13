@@ -10,6 +10,7 @@ import { PDFParse } from 'pdf-parse';
 import mammoth from 'mammoth';
 import fs from 'fs/promises';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { randomUUID } from 'crypto';
 import { extractSkills, extractYearsFromText, extractEducationLabel } from '@/lib/ranking/rankingService';
 import Application from '@/database/Application.model';
@@ -19,6 +20,9 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const CLOUDINARY_UPLOAD_TIMEOUT_MS = 4000;
 const PARSE_TIMEOUT_MS = 3000;
 const EMBEDDING_TIMEOUT_MS = 1500;
+
+const workerPath = path.join(process.cwd(), 'node_modules', 'pdfjs-dist', 'legacy', 'build', 'pdf.worker.min.mjs');
+PDFParse.setWorker(pathToFileURL(workerPath).href);
 
 type UploadedResumeFile = Blob & {
   name: string;

@@ -44,26 +44,6 @@ export async function GET(
       return errorResponse('File not available', 404);
     }
 
-    let arrayBuffer: ArrayBuffer;
-    let contentType = 'application/octet-stream';
-
-    if (typeof fileUrl === 'string' && fileUrl.startsWith('/')) {
-      const filePath = path.join(process.cwd(), 'public', fileUrl.replace(/^\/+/, ''));
-      const fileBuffer = await fs.readFile(filePath).catch(() => null);
-      if (!fileBuffer) {
-        return errorResponse('File not available', 404);
-      }
-      arrayBuffer = fileBuffer.buffer.slice(fileBuffer.byteOffset, fileBuffer.byteOffset + fileBuffer.byteLength);
-      contentType = 'application/octet-stream';
-    } else {
-      const fetched = await fetch(fileUrl);
-      if (!fetched.ok) {
-        return errorResponse('Failed to fetch file', 502);
-      }
-      arrayBuffer = await fetched.arrayBuffer();
-      contentType = fetched.headers.get('content-type') || 'application/octet-stream';
-    }
-
     const filename = resume.originalName ?? 'resume.pdf';
     const ext = filename.split('.').pop()?.toLowerCase() ?? 'pdf';
     const mimeMap: Record<string, string> = {
@@ -76,11 +56,34 @@ export async function GET(
       txt: 'text/plain',
       rtf: 'application/rtf',
     };
-    const resolvedContentType = mimeMap[ext] || contentType;
+    const resolvedContentType = mimeMap[ext] || 'application/octet-stream';
+
     const download = new URL(request.url).searchParams.get('download') === '1';
     const disposition = download
       ? `attachment; filename="${filename}"`
       : 'inline';
+
+    if (typeof fileUrl === 'string' && fileUrl.startsWith('/')) {
+      const filePath = path.join(process.cwd(), 'public', fileUrl.replace(/^\/+/, ''));
+      const fileBuffer = await fs.readFile(filePath).catch(() => null);
+      if (!fileBuffer) {
+        return errorResponse('File not available', 404);
+      }
+      const arrayBuffer = fileBuffer.buffer.slice(fileBuffer.byteOffset, fileBuffer.byteOffset + fileBuffer.byteLength);
+      return new Response(Buffer.from(arrayBuffer), {
+        status: 200,
+        headers: {
+          'Content-Type': resolvedContentType,
+          'Content-Disposition': disposition,
+        },
+      });
+    }
+
+    const fetched = await fetch(fileUrl);
+    if (!fetched.ok) {
+      return errorResponse('Failed to fetch file', 502);
+    }
+    const arrayBuffer = await fetched.arrayBuffer();
 
     return new Response(Buffer.from(arrayBuffer), {
       status: 200,
