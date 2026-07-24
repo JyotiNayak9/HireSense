@@ -2,14 +2,15 @@ import { NextRequest } from 'next/server';
 import { initializeDatabase } from '@/lib/initializeDatabase';
 import User from '@/database/User.model';
 import Company from '@/database/Company.model';
+import Admin from '@/database/Admin.model';
 import { successResponse, errorResponse } from '@/lib/apiResponse';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET;
-type AccountType = 'candidate' | 'company';
+type AccountType = 'candidate' | 'company' | 'admin';
 
 const isAccountType = (value: string): value is AccountType => {
-  return value === 'candidate' || value === 'company';
+  return value === 'candidate' || value === 'company' || value === 'admin';
 };
 
 export async function POST(request: NextRequest) {
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (accountType === 'company') {
-      const company = await Company.findOne({ email }).select('+password');
+      const company = await Company.findOne({ email }).select('+password +status');
 
       if (!company) {
         return errorResponse('Invalid email or password', 401);
@@ -55,6 +56,14 @@ export async function POST(request: NextRequest) {
 
       if (!isPasswordValid) {
         return errorResponse('Invalid email or password', 401);
+      }
+
+      if (company.status === 'pending') {
+        return errorResponse('Your registration is pending admin approval. Please wait for approval before logging in.', 403);
+      }
+
+      if (company.status === 'rejected') {
+        return errorResponse('Your registration has been rejected. Please contact support for more information.', 403);
       }
 
       const token = jwt.sign(
@@ -97,6 +106,60 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    if (accountType === 'admin') {
+      const admin = await Admin.findOne({ email }).select('+password');
+
+      if (!admin) {
+        return errorResponse('Invalid email or password', 401);
+      }
+
+      if (!admin.password) {
+        return errorResponse('Invalid email or password', 401);
+      }
+
+      const isPasswordValid = await admin.comparePassword(password);
+
+      if (!isPasswordValid) {
+        return errorResponse('Invalid email or password', 401);
+      }
+
+      const token = jwt.sign(
+        {
+          accountId: admin._id,
+          email: admin.email,
+          role: 'admin',
+          name: admin.name,
+          accountType,
+        },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      const adminResponse = {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+        createdAt: admin.createdAt,
+        updatedAt: admin.updatedAt,
+      };
+
+      const response = successResponse(
+        { accountType, admin: adminResponse, token },
+        'Login successful',
+        200
+      );
+
+      response.cookies.set('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7,
+      });
+
+      return response;
+    }
+
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
@@ -105,11 +168,11 @@ export async function POST(request: NextRequest) {
 
     const isPasswordValid = await user.comparePassword(password);
 
-    if (!isPasswordValid) {
-      return errorResponse('Invalid email or password', 401);
-    }
+      if (!isPasswordValid) {
+        return errorResponse('Invalid email or password', 401);
+      }
 
-    const token = jwt.sign(
+      const token = jwt.sign(
       {
         accountId: user._id,
         userId: user._id,

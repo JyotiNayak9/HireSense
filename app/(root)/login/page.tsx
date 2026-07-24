@@ -20,7 +20,7 @@ export default function LoginPage() {
   const schema = yup.object().shape({
     accountType: yup
       .string()
-      .oneOf(["candidate", "company"], "Please select a valid login type")
+      .oneOf(["candidate", "company", "admin"], "Please select a valid login type")
       .required("Login type is required"),
     email: yup
       .string()
@@ -79,6 +79,8 @@ export default function LoginPage() {
       router.push(
         result.data?.accountType === "company"
           ? "/dashboard/company"
+          : result.data?.accountType === "admin"
+          ? "/dashboard/admin"
           : "/dashboard/user"
       );
     } catch {
@@ -124,6 +126,7 @@ export default function LoginPage() {
                   options={[
                     { label: "Applicant", value: "candidate" },
                     { label: "Company", value: "company" },
+                    { label: "Admin", value: "admin" },
                   ]}
                 />
               </div>

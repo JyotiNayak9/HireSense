@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-export type AccountType = 'candidate' | 'company';
+export type AccountType = 'candidate' | 'company' | 'admin';
 
 export interface AuthSession {
   accountId: string;
@@ -15,7 +15,7 @@ export interface AuthSession {
 }
 
 const isAccountType = (value: unknown): value is AccountType => {
-  return value === 'candidate' || value === 'company';
+  return value === 'candidate' || value === 'company' || value === 'admin';
 };
 
 export async function getAuthSession(): Promise<AuthSession | null> {
@@ -82,5 +82,19 @@ export async function requireCandidateSession() {
   if(session.accountType !== 'candidate' || session.role !== 'candidate') {
     redirect('/login');
   }
+  return session;
+}
+
+export async function requireAdminSession() {
+  const session = await getAuthSession();
+
+  if (!session) {
+    redirect('/login');
+  }
+
+  if (session.accountType !== 'admin' || session.role !== 'admin') {
+    redirect('/login');
+  }
+
   return session;
 }

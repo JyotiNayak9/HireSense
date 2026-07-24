@@ -87,8 +87,13 @@ export default function VerifyOTPPage() {
 
       if (data.success) {
         setSuccess(true);
-        toast.success('Email verified successfully! You can now log in.');
-        router.push('/login');
+        if (accountType === 'company') {
+          toast.success('Approval request sent to admin. Wait for approval.');
+          router.push('/');
+        } else {
+          toast.success('Email verified successfully! You can now log in.');
+          router.push('/login');
+        }
       } else {
         setError(data.message || 'Verification failed.');
         toast.error(data.message || 'Verification failed.');
@@ -144,12 +149,16 @@ export default function VerifyOTPPage() {
             </svg>
           </div>
           <h1 className="mb-2 text-2xl font-bold text-gray-900">Email Verified!</h1>
-          <p className="mb-6 text-gray-600">Your email has been verified successfully.</p>
+          <p className="mb-6 text-gray-600">
+            {accountType === 'company'
+              ? 'Approval request sent to admin. Please wait for approval.'
+              : 'Your email has been verified successfully.'}
+          </p>
           <button
-            onClick={() => router.push('/login')}
+            onClick={() => router.push(accountType === 'company' ? '/' : '/login')}
             className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
           >
-            Go to Login
+            {accountType === 'company' ? 'Go to Home' : 'Go to Login'}
           </button>
         </div>
       </div>

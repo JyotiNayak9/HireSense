@@ -72,7 +72,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   const { closeModal, openRegister } = useAuthModal();
 
   const schema = yup.object().shape({
-    accountType: yup.string().oneOf(['candidate', 'company'], 'Please select a valid login type').required('Login type is required'),
+    accountType: yup.string().oneOf(['candidate', 'company', 'admin'], 'Please select a valid login type').required('Login type is required'),
     email: yup.string().required('Email is required').email('Please provide a valid email address'),
     password: yup.string().required('Password is required'),
   });
@@ -100,7 +100,13 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
 
       toast.success('Login successful.');
       closeModal();
-      router.push(result.data?.accountType === 'company' ? '/dashboard/company' : '/dashboard/user');
+      router.push(
+        result.data?.accountType === 'company'
+          ? '/dashboard/company'
+          : result.data?.accountType === 'admin'
+          ? '/dashboard/admin'
+          : '/dashboard/user'
+      );
     } catch {
       setError('root', { type: 'server', message: 'An unexpected error occurred. Please try again.' });
     }
@@ -133,6 +139,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
             options={[
               { label: 'Applicant', value: 'candidate' },
               { label: 'Company', value: 'company' },
+              { label: 'Admin', value: 'admin' },
             ]}
           />
         </div>

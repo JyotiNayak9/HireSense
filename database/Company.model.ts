@@ -12,6 +12,7 @@ export interface ICompany extends Document {
   logo?: string;
   role: string;
   isVerified: boolean;
+  status: 'pending' | 'approved' | 'rejected';
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -81,6 +82,11 @@ const companySchema = new Schema<ICompany>(
     isVerified: {
       type: Boolean,
       default: false,
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
     },
   },
   {
